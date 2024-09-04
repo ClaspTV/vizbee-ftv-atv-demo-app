@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
+    <application
+        android:name=".ScreenDemoApp"
+        android:allowBackup="true"
+        android:banner="@color/colorPrimaryDark"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FireTVNewDemoGroovy">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <!-- Begin SDK Integration -->
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- End SDK Integration -->
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".videoview.VideoViewPlayerActivity"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".exoplayer.ExoPlayerActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.FullscreenTheme" />
+    </application>
+</manifest>

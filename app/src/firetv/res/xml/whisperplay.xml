@@ -1,0 +1,8 @@
+<whisperplay>
+    <dial>
+        <application>
+            <dialid>ftvreceiver_demo</dialid>
+            <startAction>android.intent.action.MAIN</startAction>
+        </application>
+    </dial>
+</whisperplay>

@@ -1,0 +1,104 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace "tv.vizbee.screendemo"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "tv.vizbee.sccrendemo"
+        minSdkVersion 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    flavorDimensions "platform"
+    // Add your product flavors here
+    productFlavors {
+        firetv {
+            dimension "platform"
+            applicationIdSuffix ".firetv"
+        }
+
+        androidtv {
+            dimension "platform"
+            applicationIdSuffix ".androidtv"
+        }
+    }
+
+    // Define source sets for each flavor
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+        }
+
+        firetv {
+            java.srcDirs += ['src/firetv/java']
+            res.srcDirs += ['src/firetv/res']
+            manifest.srcFile 'src/firetv/AndroidManifest.xml'
+        }
+
+        androidtv {
+            java.srcDirs += ['src/androidtv/java']
+            res.srcDirs += ['src/androidtv/res']
+            manifest.srcFile 'src/androidtv/AndroidManifest.xml'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // androidX
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.leanback:leanback:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.35.0'
+
+    // ----------
+    // Begin SDK Integration
+    // ----------
+
+    // For Fire TV
+    firetvImplementation 'tv.vizbee:firetv-receiver-sdk:4.2.4'
+    // For Android TV
+    androidtvImplementation 'tv.vizbee:androidtv-receiver-sdk:4.1.7'
+
+    // ----------
+    // End SDK Integration
+    // ----------
+
+    testImplementation "junit:junit:4.13.2"
+
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+}
