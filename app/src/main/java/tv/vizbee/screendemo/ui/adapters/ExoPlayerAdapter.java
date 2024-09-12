@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.playeradapter;
+package tv.vizbee.screendemo.ui.adapters;
 
 
 import android.app.Activity;
@@ -42,13 +42,11 @@ public class ExoPlayerAdapter extends VizbeePlayerAdapter {
     // Constructor
     //-----------------------------------------------------
 
-    public ExoPlayerAdapter(ExoPlayer exoPlayer,
-                            Activity activity,
-                            VizbeeStopCommandHandler stopCommandHandler) {
-        mExoPlayer = exoPlayer;
-        activityWeakReference = new WeakReference<>(activity);
+    public ExoPlayerAdapter(ExoPlayer exoPlayer, Activity activity, VizbeeStopCommandHandler stopCommandHandler) {
+        this.mExoPlayer = exoPlayer;
+        this.activityWeakReference = new WeakReference<>(activity);
         this.stopCommandHandler = stopCommandHandler;
-        videoStatus = new VideoStatus();
+        this.videoStatus = new VideoStatus();
     }
 
     //-----------------------------------------------------

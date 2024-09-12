@@ -1,13 +1,9 @@
 package tv.vizbee.screendemo.vizbee.video.deeplink
 
-import android.app.Activity
 import android.app.Application
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
 import tv.vizbee.screen.api.messages.VideoInfo
-import tv.vizbee.screendemo.MainActivity
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
 import tv.vizbee.utils.Logger

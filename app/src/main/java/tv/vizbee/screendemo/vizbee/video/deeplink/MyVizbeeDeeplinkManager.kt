@@ -10,7 +10,7 @@ import tv.vizbee.screen.api.adapter.VizbeePlayerAdapter
 import tv.vizbee.screen.api.messages.PlaybackStatus
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screen.api.messages.VideoStatus
-import tv.vizbee.screendemo.MainActivity
+import tv.vizbee.screendemo.ui.activities.MainActivity
 
 /**
  * #VizbeeGuide Implement deeplinkVideo() method as described.

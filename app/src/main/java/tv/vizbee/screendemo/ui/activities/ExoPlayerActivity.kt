@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.exoplayer
+package tv.vizbee.screendemo.ui.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -39,11 +39,12 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import tv.vizbee.screendemo.model.Video
-import tv.vizbee.screendemo.playeradapter.ExoPlayerAdapter
+import tv.vizbee.screendemo.ui.adapters.ExoPlayerAdapter
 import tv.vizbee.screen.api.Vizbee
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.databinding.ActivityExoPlayerBinding
+import tv.vizbee.screendemo.utils.ExoplayerUtils
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper
 import java.io.IOException
 
@@ -201,7 +202,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
 
         // This is the MediaSource representing the media to be played.
         val videoSource: MediaSource =
-            ExoplayerUtils.buildMediaSource(this, videoUri, dataSourceFactory, mHandler, "", this)
+            ExoplayerUtils.buildMediaSource(videoUri, dataSourceFactory, mHandler, "", this)
 
         // Prepare the player with the source.
         mPlayer?.prepare(videoSource)

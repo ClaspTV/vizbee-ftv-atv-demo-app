@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo
+package tv.vizbee.screendemo.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,9 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
 import tv.vizbee.screendemo.databinding.ActivityMainBinding
-import tv.vizbee.screendemo.exoplayer.ExoPlayerActivity
 import tv.vizbee.screendemo.model.VideoCatalog
-import tv.vizbee.screendemo.videoview.VideoViewPlayerActivity
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 
@@ -30,9 +28,9 @@ class MainActivity : FragmentActivity() {
             launchExoplayerActivity(VideoCatalog.SINTEL)
         }
 
-//        binding.mainVideoTwoImage.setOnClickListener {
-//            launchVideoViewPlayerActivity(VideoCatalog.BIG_BUCK_BUNNY)
-//        }
+        binding.mainVideoTwoImage.setOnClickListener {
+            launchExoplayerActivity(VideoCatalog.BIG_BUCK_BUNNY)
+        }
 
         binding.mainVideoThreeImage.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.TEARS_OF_STEEL)
@@ -116,23 +114,6 @@ class MainActivity : FragmentActivity() {
         }
         stringBuilder.append("Flags: ").append(intent.flags).append("\n")
         return stringBuilder.toString()
-    }
-
-    private fun launchVideoViewPlayerActivity(guid: String, position: Int = 0) {
-        val video = VideoCatalog.all[guid]
-        video?.let {
-            Log.d(
-                TAG,
-                java.lang.String.format("Launching VideoViewPlayerActivity with video: %s @ %d", it.title, position)
-            )
-            startActivity(
-                Intent(this, VideoViewPlayerActivity::class.java)
-                    .putExtra("video", video)
-                    .putExtra("position", position)
-            )
-        } ?: kotlin.run {
-            displayPlayError(guid)
-        }
     }
 
     private fun launchExoplayerActivity(guid: String, position: Long = 0) {

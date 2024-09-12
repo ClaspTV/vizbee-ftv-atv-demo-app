@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.exoplayer
+package tv.vizbee.screendemo.utils
 
 import android.content.Context
 import android.net.Uri
@@ -21,34 +21,44 @@ import tv.vizbee.screendemo.BuildConfig
 
 object ExoplayerUtils {
     fun buildMediaSource(
-        context: Context?, uri: Uri,
+        uri: Uri,
         mediaDataSourceFactory: DataSource.Factory,
         handler: Handler,
         overrideExtension: String,
         adaptiveListener: MediaSourceEventListener
     ): BaseMediaSource {
-        val type = Util.inferContentType((if (!TextUtils.isEmpty(overrideExtension)) ".$overrideExtension" else uri.lastPathSegment)!!)
+        val type =
+            Util.inferContentType(
+                (if (!TextUtils.isEmpty(overrideExtension))
+                    ".$overrideExtension"
+                else
+                    uri.lastPathSegment)!!
+            )
         return when (type) {
             C.TYPE_SS -> {
-                val mediaSource = SsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+                val mediaSource =
+                    SsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
                 mediaSource.addEventListener(handler, adaptiveListener)
                 return mediaSource
             }
 
             C.TYPE_DASH -> {
-                val mediaSource = DashMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+                val mediaSource =
+                    DashMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
                 mediaSource.addEventListener(handler, adaptiveListener)
                 return mediaSource
             }
 
             C.TYPE_HLS -> {
-                val mediaSource = HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+                val mediaSource =
+                    HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
                 mediaSource.addEventListener(handler, adaptiveListener)
                 return mediaSource
             }
 
             C.TYPE_OTHER -> {
-                val mediaSource = ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+                val mediaSource =
+                    ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
                 mediaSource.addEventListener(handler, adaptiveListener)
                 return mediaSource
             }

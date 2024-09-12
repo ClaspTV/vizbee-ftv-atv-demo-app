@@ -19,7 +19,7 @@
         android:theme="@style/Theme.FireTVNewDemoGroovy">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
             android:launchMode="singleTask">
@@ -36,11 +36,11 @@
         </activity>
 
         <activity
-            android:name=".videoview.VideoViewPlayerActivity"
+            android:name=".ui.activities.VideoViewPlayerActivity"
             android:launchMode="singleTop" />
 
         <activity
-            android:name=".exoplayer.ExoPlayerActivity"
+            android:name=".ui.activities.ExoPlayerActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.FullscreenTheme" />
     </application>
