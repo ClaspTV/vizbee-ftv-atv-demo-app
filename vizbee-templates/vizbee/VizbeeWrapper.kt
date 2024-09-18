@@ -7,7 +7,6 @@ import com.example.app.vizbee.applifecycle.MyVizbeeAppLifecycleAdapter
 import com.example.app.vizbee.applifecycle.VizbeeAppLifecycleAdapter
 import com.example.app.vizbee.video.deeplink.MyVizbeeAppAdapter
 import tv.vizbee.screen.api.Vizbee
-import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
 
 /**
  * #VizbeeGuide Do not modify this file.
