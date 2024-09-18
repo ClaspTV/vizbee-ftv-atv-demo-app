@@ -40,19 +40,19 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun setListeners() {
-        binding.mainSintelLayout.setOnClickListener {
+        binding.mainSintelImageView.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.SINTEL)
         }
 
-        binding.mainAkamaiLiveLayout.setOnClickListener {
+        binding.mainAkamaiLiveImageView.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.AKAMAI_LIVE_STREAM)
         }
 
-        binding.mainTearsOfSteelLayout.setOnClickListener {
+        binding.mainTearsOfSteelImageView.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.TEARS_OF_STEEL)
         }
 
-        binding.mainElephantsDreamLayout.setOnClickListener {
+        binding.mainElephantsDreamImageView.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.ELEPHANTS_DREAM)
         }
     }
@@ -71,13 +71,14 @@ class MainActivity : FragmentActivity() {
         // ---------------------------
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        Log.i(TAG, "onNewIntent")
 
         // ---------------------------
         // [BEGIN] Vizbee Integration
         // ---------------------------
-        if (handleIntentByCastReceiver(getIntent())) {
+        if (handleIntentByCastReceiver(intent)) {
             return
         }
         // ---------------------------

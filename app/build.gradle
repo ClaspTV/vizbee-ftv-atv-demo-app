@@ -43,7 +43,7 @@ android {
 
         androidtv {
             dimension "platform"
-            applicationIdSuffix ".androidtv"
+            applicationId "tv.vizbee.vzbsample.atvreceiver"
         }
     }
 
