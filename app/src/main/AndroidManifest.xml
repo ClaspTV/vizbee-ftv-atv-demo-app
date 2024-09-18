@@ -38,6 +38,17 @@
         <activity
             android:name=".ui.video.ExoPlayerActivity"
             android:launchMode="singleTop"
+            android:exported="false"
+            android:theme="@style/AppTheme.FullscreenTheme" />
+        <activity
+            android:name=".ui.account.AccountActivity"
+            android:launchMode="singleTop"
+            android:exported="false"
+            android:theme="@style/AppTheme.FullscreenTheme" />
+        <activity
+            android:name=".ui.signin.SignInActivity"
+            android:launchMode="singleTop"
+            android:exported="false"
             android:theme="@style/AppTheme.FullscreenTheme" />
     </application>
 </manifest>

@@ -3,11 +3,15 @@ package tv.vizbee.screendemo.ui.home
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
+import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.databinding.ActivityMainBinding
 import tv.vizbee.screendemo.model.video.VideoCatalog
+import tv.vizbee.screendemo.ui.account.AccountActivity
 import tv.vizbee.screendemo.ui.video.ExoPlayerActivity
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
@@ -131,6 +135,21 @@ class MainActivity : FragmentActivity() {
             String.format("Video with GUID: %s is not supported by this demo app!", guid),
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_account -> {
+                startActivity(Intent(this, AccountActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroy() {

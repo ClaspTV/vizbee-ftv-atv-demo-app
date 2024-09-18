@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="80dp"
+    tools:context=".ui.SignInActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Log in to your cable provider."
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Please go to xyz.com on your computer or mobile and enter the code below"
+        android:textColor="@android:color/white"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/sign_in_reg_code"
+        android:layout_width="wrap_content"
+        android:letterSpacing="0.4"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="20dp"
+        android:text="ABCDE"
+        android:textColor="@android:color/white"
+        android:textSize="70sp" />
+</LinearLayout>
