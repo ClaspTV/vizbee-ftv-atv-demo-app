@@ -28,12 +28,12 @@ class MainActivity : FragmentActivity() {
         // Let Vizbee know that the app is ready and set the app ready model
 
         // ---------------------------
-        // Begin SDK Integration
+        // [BEGIN] Vizbee Integration
         // ---------------------------
         appReadyModel = AppReadyModel(this)
         applicationContext.vizbeeAppLifecycleAdapter?.setAppReady(appReadyModel!!)
         // ---------------------------
-        // End SDK Integration
+        // [END] Vizbee Integration
         // ---------------------------
 
         setListeners()
@@ -61,13 +61,13 @@ class MainActivity : FragmentActivity() {
         super.onStart()
 
         // ---------------------------
-        // Begin SDK Integration
+        // [BEGIN] Vizbee Integration
         // ---------------------------
         if (handleIntentByCastReceiver(intent)) {
             return
         }
         // ---------------------------
-        // End SDK Integration
+        // [END] Vizbee Integration
         // ---------------------------
     }
 
@@ -75,13 +75,13 @@ class MainActivity : FragmentActivity() {
         super.onNewIntent(intent)
 
         // ---------------------------
-        // Begin SDK Integration
+        // [BEGIN] Vizbee Integration
         // ---------------------------
         if (handleIntentByCastReceiver(getIntent())) {
             return
         }
         // ---------------------------
-        // End SDK Integration
+        // [END] Vizbee Integration
         // ---------------------------
 
         setIntent(intent)
@@ -139,12 +139,12 @@ class MainActivity : FragmentActivity() {
         // Clear app ready model
 
         // ---------------------------
-        // Begin SDK Integration
+        // [BEGIN] Vizbee Integration
         // ---------------------------
         applicationContext.vizbeeAppLifecycleAdapter?.clearAppReady()
         appReadyModel = null
         // ---------------------------
-        // End SDK Integration
+        // [END] Vizbee Integration
         // ---------------------------
     }
 }

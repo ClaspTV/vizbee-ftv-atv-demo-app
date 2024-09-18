@@ -27,9 +27,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <!-- Begin SDK Integration -->
+                <!-- [BEGIN] Vizbee Integration -->
                 <category android:name="android.intent.category.DEFAULT" />
-                <!-- End SDK Integration -->
+                <!-- [END] Vizbee Integration -->
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>

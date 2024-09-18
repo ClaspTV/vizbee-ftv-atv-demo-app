@@ -8,7 +8,7 @@ class CastUtil {
         fun handleIntentByCastReceiver(intent: Intent): Boolean {
 
             // ---------------------------
-            // Begin SDK Integration
+            // [BEGIN] Vizbee Integration
             // ---------------------------
             // if the SDK(Google Cast) recognizes the intent, we should early return.
             if (CastReceiverContext.getInstance() != null) {
@@ -16,7 +16,7 @@ class CastUtil {
                 return mediaManager.onNewIntent(intent)
             }
             // ---------------------------
-            // End SDK Integration
+            // [END] Vizbee Integration
             // ---------------------------
 
             return false

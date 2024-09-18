@@ -13,12 +13,12 @@ public class VizbeeTVDemoApplication extends Application {
         super.onCreate();
 
         // ---------------------------
-        // Begin SDK Integration
+        // [BEGIN] Vizbee Integration
         // ---------------------------
         vizbeeWrapper = new VizbeeWrapper();
         vizbeeWrapper.initialize(this);
         // ---------------------------
-        // End SDK Integration
+        // [END] Vizbee Integration
         // ---------------------------
 
     }

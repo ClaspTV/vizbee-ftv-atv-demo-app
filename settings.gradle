@@ -10,7 +10,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        // ---------------------------
+        // [BEGIN] Vizbee Integration
+        // ---------------------------
         maven { url 'https://repo.claspws.tv/artifactory/libs' }
+        // ---------------------------
+        // [END] Vizbee Integration
+        // ---------------------------
     }
 }
 

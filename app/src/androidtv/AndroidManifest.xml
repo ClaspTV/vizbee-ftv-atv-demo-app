@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
 
-            <!-- Begin SDK Integration -->
+            <!-- [BEGIN] Vizbee Integration -->
             <!-- To launch the app -->
             <intent-filter>
                 <action android:name="com.google.android.gms.cast.tv.action.LAUNCH" />
@@ -34,15 +34,15 @@
                 <action android:name="com.google.android.gms.cast.tv.action.LOAD" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <!-- End SDK Integration -->
+            <!-- [END] Vizbee Integration -->
 
         </activity>
 
-        <!-- Begin SDK Integration -->
+        <!-- [BEGIN] Vizbee Integration -->
         <meta-data
             android:name="com.google.android.gms.cast.tv.RECEIVER_OPTIONS_PROVIDER_CLASS_NAME"
             android:value="tv.vizbee.screendemo.MyAppReceiverOptionsProvider" />
-        <!-- End SDK Integration -->
+        <!-- [END] Vizbee Integration -->
 
     </application>
 

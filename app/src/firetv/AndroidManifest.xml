@@ -11,11 +11,11 @@
     <application
         android:usesCleartextTraffic="true">
 
-        <!-- Begin SDK Integration -->
+        <!-- [BEGIN] Vizbee Integration -->
         <meta-data
             android:name="whisperplay"
             android:resource="@xml/whisperplay" />
-        <!-- End SDK Integration -->
+        <!-- [END] Vizbee Integration -->
 
     </application>
 

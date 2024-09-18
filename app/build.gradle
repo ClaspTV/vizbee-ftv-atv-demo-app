@@ -84,18 +84,16 @@ dependencies {
     implementation "com.google.android.exoplayer:extension-mediasession:2.19.1"
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.35.0'
 
-    // ----------
-    // Begin SDK Integration
-    // ----------
+    // --------------------------
+    // [BEGIN] Vizbee Integration
+    // --------------------------
 
-    // For Fire TV
-    firetvImplementation 'tv.vizbee:firetv-receiver-sdk:4.2.4'
-    // For Android TV
-    androidtvImplementation 'tv.vizbee:androidtv-receiver-sdk:4.1.7'
+    firetvImplementation 'tv.vizbee:firetv-receiver-sdk:4.2.4' // For Fire TV
+    androidtvImplementation 'tv.vizbee:androidtv-receiver-sdk:4.1.7' // For Android TV
 
-    // ----------
-    // End SDK Integration
-    // ----------
+    // --------------------------
+    // [END] Vizbee Integration
+    // --------------------------
 
     testImplementation "junit:junit:4.13.2"
 
