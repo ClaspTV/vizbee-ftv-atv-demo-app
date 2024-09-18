@@ -46,49 +46,24 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
     private var mediaSessionConnector: MediaSessionConnector? = null
     private var mHandler: Handler = Handler(Looper.getMainLooper())
     private var mPlayer: ExoPlayer? = null
-
     private var mStartPosition = -1L
 
     private val playerListener: MyVizbeeMediaSessionCompatPlayerAdapter.PlayerListener =
         object : MyVizbeeMediaSessionCompatPlayerAdapter.PlayerListener {
-            override fun isContentPlaying(): Boolean {
-                return mPlayer?.isPlaying ?: false
-            }
-
-            override fun getContentPosition(): Long {
-                return mPlayer?.currentPosition ?: 0
-            }
-
-            override fun getDuration(): Long {
-                return mPlayer?.duration ?: 0
-            }
-
-            override fun isAdPlaying(): Boolean {
-                return false
-            }
-
-            override fun getAdPosition(): Long {
-                return mPlayer?.currentPosition ?: 0
-            }
-
-            override fun getAdDuration(): Long {
-                return mPlayer?.duration ?: 0
-            }
-
-            override fun toggleClosedCaptions() {
-                // Not implemented
-            }
-
-            override fun isClosedCaptioning(): Boolean {
-                return false
-            }
+            override fun isContentPlaying() = mPlayer?.isPlaying ?: false
+            override fun getContentPosition() = mPlayer?.currentPosition ?: 0
+            override fun getDuration() = mPlayer?.duration ?: 0
+            override fun isAdPlaying() = false
+            override fun getAdPosition() = mPlayer?.currentPosition ?: 0
+            override fun getAdDuration() = mPlayer?.duration ?: 0
+            override fun toggleClosedCaptions() {}
+            override fun isClosedCaptioning() = false
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExoPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // 1. Initialize player
@@ -115,15 +90,12 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
     }
 
     private fun initializeMediaSession() {
-        mediaSession = MediaSessionCompat(this, "ExoPlayerMediaSession")
-        mediaSession?.let { session ->
-            session.isActive = true
-
-            mediaSessionConnector = MediaSessionConnector(session)
-            mediaSessionConnector?.setPlayer(mPlayer)
-
-
-            session.setCallback(object : MediaSessionCompat.Callback() {
+        mediaSession = MediaSessionCompat(this, "ExoPlayerMediaSession").apply {
+            isActive = true
+            mediaSessionConnector = MediaSessionConnector(this).apply {
+                setPlayer(mPlayer)
+            }
+            setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlay() {
                     mPlayer?.play()
                 }
@@ -141,18 +113,11 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
                     finish()
                 }
             })
-
             updatePlaybackState()
             updateMediaMetadata()
-
             mPlayer?.addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    updatePlaybackState()
-                }
-
-                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    updateMediaMetadata()
-                }
+                override fun onPlaybackStateChanged(state: Int) = updatePlaybackState()
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) = updateMediaMetadata()
             })
         }
     }
@@ -167,13 +132,8 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
 
             val playbackState = PlaybackStateCompat.Builder()
                 .setState(state, it.currentPosition, it.playbackParameters.speed)
-                .setActions(
-                    PlaybackStateCompat.ACTION_PLAY or
-                            PlaybackStateCompat.ACTION_PAUSE or
-                            PlaybackStateCompat.ACTION_SEEK_TO
-                )
+                .setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE or PlaybackStateCompat.ACTION_SEEK_TO)
                 .build()
-
             mediaSession?.setPlaybackState(playbackState)
         }
     }
@@ -202,19 +162,12 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
     }
 
     private fun handleVideoIntent() {
-        val extras = intent.extras
-        if (null != extras && !extras.containsKey("duplicate")) {
-            intent.putExtra("duplicate", true)
-            var video: Video? = null
-            var position = 0L
-            if (extras.containsKey("video")) {
-                video = extras.getParcelable("video")
-            }
-            if (extras.containsKey("position")) {
-                position = extras.getLong("position")
-            }
-            if (null != video) {
-                prepareVideo(video, position)
+        intent.extras?.let { extras ->
+            if (!extras.containsKey("duplicate")) {
+                intent.putExtra("duplicate", true)
+                val video: Video? = extras.getParcelable("video")
+                val position: Long = extras.getLong("position", 0L)
+                video?.let { prepareVideo(it, position) }
             }
         }
     }
@@ -296,9 +249,8 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
             mPlayer?.seekTo(mStartPosition.toLong())
             mStartPosition = -1
         }
-        if (mPlayer != null) {
-            mPlayer?.playWhenReady = true
-        }
+        mPlayer?.playWhenReady = true
+
         binding.exoplayerPlayer.visibility = View.VISIBLE
     }
 
