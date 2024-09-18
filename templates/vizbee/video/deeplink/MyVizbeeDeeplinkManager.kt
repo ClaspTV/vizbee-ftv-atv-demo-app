@@ -64,9 +64,7 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) {
     }
 
     /**
-     * Handles a deep link failure by sending an INTERRUPTED PlaybackStatus to dismiss the mobile player card.
-     * This method creates a temporary VizbeePlayerAdapter to communicate the failure status.
-     * Call this method from anywhere in your app when deep link fails by application.vizbeeAppLifecycleAdapter?.appReadyModel?.deeplinkManager?.handleDeeplinkFailure()
+     * Handles a deep link failure by sending an INTERRUPTED PlaybackStatus so that the mobile player card is dismissed.
      *
      * #VizbeeGuide Do not modify this method.
      */

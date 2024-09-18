@@ -43,11 +43,13 @@ class MyVizbeePlayerAdapterHandler(private val isVizbeeEnabled: Boolean) {
         mediaSessionCompat?.let {
 
             val videoInfo = getVideoInfo(appVideoInfo)
-            playerAdapter = MyVizbeeMediaSessionCompatPlayerAdapter(
-                mediaSessionCompat,
-                vizbeePlayerListener
-            )
-            playerAdapter?.let { Vizbee.getInstance().setPlayerAdapter(videoInfo, it) }
+            videoInfo?.let {
+                playerAdapter = MyVizbeeMediaSessionCompatPlayerAdapter(
+                    mediaSessionCompat,
+                    vizbeePlayerListener
+                )
+                playerAdapter?.let { Vizbee.getInstance().setPlayerAdapter(videoInfo, it) }
+            }
         }
     }
 
