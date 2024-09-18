@@ -1,11 +1,11 @@
 package tv.vizbee.screendemo.vizbee.video.deeplink
 
-import android.util.Log
+import android.content.Context
+import android.os.Build
 import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
 import tv.vizbee.screen.api.messages.VideoInfo
-import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
-import tv.vizbee.utils.Logger
+import tv.vizbee.screendemo.vizbee.homesso.MyVizbeeHomeSSOAdapter
 
 /**
  * #VizbeeGuide Do not modify this file.
@@ -13,27 +13,13 @@ import tv.vizbee.utils.Logger
  * This class implements VizbeeAppAdapter to handle all "start or deeplink to a new video" command sent by your mobile app.
  *
  * @property appLifecycleAdapter Vizbee lifecycle adapter implementation
+ * @property homeSSOAdapter Vizbee HomeSSO adapter implementation
  */
-class MyVizbeeAppAdapter(private val appLifecycleAdapter: VizbeeAppLifecycleAdapter) : VizbeeAppAdapter() {
-
-    private var startVideoRequest: StartVideoRequest? = null
-
-    init {
-        appLifecycleAdapter.addAppLifecycleListener(object : VizbeeAppLifecycleAdapter.AppLifecycleListener {
-            override fun onAppReady(appReadyModel: AppReadyModel) {
-                Log.v(LOG_TAG, " do we have a saved start video request? = ${startVideoRequest != null}")
-
-                startVideoRequest?.let {
-                    appReadyModel.deeplinkManager.deeplinkVideo(it.videoInfo, it.positionMs)
-                    startVideoRequest = null
-                } ?: kotlin.run { }
-            }
-
-            override fun onAppUnReady() {
-                // If you need to uninitialized any resources, do it here.
-            }
-        })
-    }
+class MyVizbeeAppAdapter(
+    private val appLifecycleAdapter: VizbeeAppLifecycleAdapter,
+    private val homeSSOAdapter: MyVizbeeHomeSSOAdapter
+) :
+    VizbeeAppAdapter(), MyVizbeeDeeplinkSignallingManager.FirstVideoUseCaseInfoProvider {
 
     // region Handling Start Video
 
@@ -46,36 +32,78 @@ class MyVizbeeAppAdapter(private val appLifecycleAdapter: VizbeeAppLifecycleAdap
     override fun onStart(videoInfo: VideoInfo, positionMs: Long) {
         super.onStart(videoInfo, positionMs)
 
-        //--------
-        // handle deeplink sent from mobile apps
-        //--------
+        val deeplinkSignallingManager = MyVizbeeDeeplinkSignallingManager(
+            appLifecycleAdapter,
+            this,
+            homeSSOAdapter
+        )
+        deeplinkSignallingManager.signalDeeplink(
+            deeplinkCallback = { appReadyModel ->
+                appReadyModel.deeplinkManager.deeplinkVideo(videoInfo, positionMs)
+                isFirstVideoRequest = false
+            },
+            waitingForSignInCallback = { appReadyModel ->
+                // send a temporary failure to dismiss the player card on the mobile
+                if (!homeSSOAdapter.isMobileSignedIn) {
+                    appReadyModel.deeplinkManager.sendFakeDeeplinkFailure(videoInfo)
+                }
+            },
+            videoInfo = videoInfo,
+            positionMs = positionMs
+        )
 
-        // Deep linking can use default VideoInfo fields or custom metadata
-        Log.v(LOG_TAG, "onStart: videoInfo = $videoInfo \n position = $positionMs")
-
-        if (appLifecycleAdapter.isAppReady()) {
-
-            Logger.i(LOG_TAG, "App is ready. Proceeding for deeplink next steps")
-            val appReadyModel = appLifecycleAdapter.getAppReadyModel()
-            appReadyModel?.deeplinkManager?.deeplinkVideo(videoInfo, positionMs)
-        } else {
-
-            Logger.v(LOG_TAG, "App is not ready yet. Saving start video.")
-            startVideoRequest = StartVideoRequest(videoInfo, positionMs)
-        }
     }
-
-    /**
-     * This data class captures the video request sent by mobile via the Vizbee SDK.
-     *
-     * @param videoInfo video information in Vizbee format
-     * @property positionMs The start position of the video or audio in milliseconds.
-     */
-    data class StartVideoRequest(val videoInfo: VideoInfo, val positionMs: Long)
 
     // endregion
 
-    companion object {
-        private const val LOG_TAG = "VZB_MyVizbeeAppAdapter"
+    // region Determining First Video
+    var context:Context? = null
+    fun setContext(context: Context) {
+        this.context = context
     }
+    /**
+     * Returns true if deep linking has to check for whether it's a first video request after
+     * connection or not. For non first video requests, we do not wait for sign in before deep
+     * linking.
+     * Currently, for FireTV, we do not check for first video.
+     */
+    override fun shouldCheckForFirstVideo(): Boolean {
+        return !isFireTv(context)
+    }
+
+    /**
+     * Returns true if the current build is running in FireTV.
+     *
+     * @param context Android Context object that's used to get package manager.
+     */
+    private fun isFireTv(context: Context?): Boolean {
+        return Build.MODEL?.startsWith("AFT") == true ||
+                context?.packageManager?.hasSystemFeature("amazon.hardware.fire_tv") == true
+    }
+
+    /**
+     * Boolean and a getter for a first video check.
+     */
+    private var isFirstVideoRequest = true
+    override fun isFirstVideoRequest(): Boolean {
+        return isFirstVideoRequest
+    }
+
+    /**
+     * Vizbee adapter method that informs when first sender is connected.
+     */
+    override fun onSendersActive() {
+        super.onSendersActive()
+        isFirstVideoRequest = true
+    }
+
+    /**
+     * Vizbee adapter method that informs when last sender is disconnected.
+     */
+    override fun onSendersInactive() {
+        super.onSendersInactive()
+        isFirstVideoRequest = false
+    }
+
+    // endregion
 }

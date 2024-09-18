@@ -2,24 +2,35 @@ package com.example.app.vizbee
 
 import android.app.Application
 import android.content.Context
+import com.example.app.vizbee.homesso.MyVizbeeHomeSSOAdapter
 import android.util.Log
-import com.example.app.vizbee.applifecycle.MyVizbeeAppLifecycleAdapter
-import com.example.app.vizbee.applifecycle.VizbeeAppLifecycleAdapter
-import com.example.app.vizbee.video.deeplink.MyVizbeeAppAdapter
 import tv.vizbee.screen.api.Vizbee
+import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
+import tv.vizbee.screen.homesso.VizbeeHomeSSOManager
 
 /**
  * #VizbeeGuide Do not modify this file.
  *
  * This class is an entry point to the Vizbee integration. It has a utility method to initialise the
- * Vizbee SDK: the Continuity SDK. It has methods to know if Vizbee is enabled
+ * Vizbee SDKs: the Continuity SDK and the HomeSSO SDK. It has methods to know if Vizbee is enabled
  * by the app and some easy to access adapter objects via extension methods.
  */
 class VizbeeWrapper {
 
     private var isVizbeeEnabled: Boolean = false
     val vizbeeAppLifecycleAdapter: VizbeeAppLifecycleAdapter by lazy { MyVizbeeAppLifecycleAdapter() }
-    val vizbeeAdapter: MyVizbeeAppAdapter by lazy { MyVizbeeAppAdapter(vizbeeAppLifecycleAdapter) }
+    val vizbeeHomeSSOAdapter: MyVizbeeHomeSSOAdapter by lazy {
+        MyVizbeeHomeSSOAdapter(
+            vizbeeAppLifecycleAdapter
+        )
+    }
+
+    val vizbeeAdapter: MyVizbeeAppAdapter by lazy {
+        MyVizbeeAppAdapter(
+            vizbeeAppLifecycleAdapter,
+            vizbeeHomeSSOAdapter
+        )
+    }
 
     //------
     // Initialisation
@@ -45,7 +56,11 @@ class VizbeeWrapper {
         }
 
         // Initialise Vizbee Continuity SDK
+        vizbeeAdapter.context = app
         Vizbee.getInstance().initialize(app, getVizbeeAppId(app), vizbeeAdapter)
+
+        // Initialise Vizbee HomeSSO SDK
+        VizbeeHomeSSOManager.initialize(app, vizbeeHomeSSOAdapter)
     }
 
     //------
@@ -101,6 +116,9 @@ class VizbeeWrapper {
 
         val Context.vizbeeAppLifecycleAdapter
             get() = application?.vizbeeWrapper?.vizbeeAppLifecycleAdapter
+
+        val Context.vizbeeHomeSSOAdapter
+            get() = application?.vizbeeWrapper?.vizbeeHomeSSOAdapter
 
         val Context.vizbeeWrapper
             get() = application?.vizbeeWrapper

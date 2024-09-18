@@ -88,8 +88,12 @@ dependencies {
     // [BEGIN] Vizbee Integration
     // --------------------------
 
-    firetvImplementation 'tv.vizbee:firetv-receiver-sdk:4.2.4' // For Fire TV
-    androidtvImplementation 'tv.vizbee:androidtv-receiver-sdk:4.1.7' // For Android TV
+    // Vizbee - Fire TV SDK
+    firetvImplementation 'tv.vizbee:firetv-receiver-sdk:4.2.4'
+    // Vizbee - Android TV SDK
+    androidtvImplementation 'tv.vizbee:androidtv-receiver-sdk:4.1.7'
+    // Vizbee - Receiver HomeSSO SDK
+    implementation "tv.vizbee:receiver-homesso-sdk:1.0.4"
 
     // --------------------------
     // [END] Vizbee Integration

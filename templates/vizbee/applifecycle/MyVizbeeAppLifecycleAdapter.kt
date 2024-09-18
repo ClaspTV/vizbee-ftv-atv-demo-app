@@ -11,7 +11,7 @@ import android.util.Log
  * should contain all the objects necessary to handle the deep link requests and sign in requests
  * coming from mobile.
  *
- * Create an instance of this class in the Application class and pass it to MyVizbeeAppAdapter
+ * An instance of this class is created in VizbeeWrapper and passed to MyVizbeeAppAdapter
  */
 class MyVizbeeAppLifecycleAdapter : VizbeeAppLifecycleAdapter {
 
@@ -23,7 +23,8 @@ class MyVizbeeAppLifecycleAdapter : VizbeeAppLifecycleAdapter {
      * Registers a lifecycle listener.
      */
     override fun addAppLifecycleListener(appLifecycleListener:
-                                         VizbeeAppLifecycleAdapter.AppLifecycleListener) {
+                                         VizbeeAppLifecycleAdapter.AppLifecycleListener
+    ) {
         this.appLifecycleListeners.add(appLifecycleListener)
     }
 

@@ -102,6 +102,19 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) {
         }
     }
 
+    /**
+     * Simulates a deep link failure to dismiss the mobile player card when the deep link is waiting
+     * for a sign in.
+     *
+     * #VizbeeGuide Do not modify this method.
+     *
+     * @param videoInfo video info in Vizbee format.
+     */
+    fun sendFakeDeeplinkFailure(videoInfo: VideoInfo) {
+        this.videoInfo = videoInfo
+        handleDeeplinkFailure()
+    }
+
     companion object {
         const val LOG_TAG = "MyVizbeeDeeplinkManager"
     }
