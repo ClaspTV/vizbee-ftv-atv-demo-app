@@ -133,9 +133,5 @@
                 style="@style/MainSubTitleStyle"
                 android:text="@string/via_exo_player" />
         </LinearLayout>
-
-        <Space
-            android:layout_width="20dp"
-            android:layout_height="5dp" />
     </LinearLayout>
 </RelativeLayout>
