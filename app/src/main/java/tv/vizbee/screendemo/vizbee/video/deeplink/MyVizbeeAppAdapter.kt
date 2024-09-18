@@ -58,9 +58,6 @@ class MyVizbeeAppAdapter(
 
     // region Determining First Video
     var context:Context? = null
-    fun setContext(context: Context) {
-        this.context = context
-    }
     /**
      * Returns true if deep linking has to check for whether it's a first video request after
      * connection or not. For non first video requests, we do not wait for sign in before deep
