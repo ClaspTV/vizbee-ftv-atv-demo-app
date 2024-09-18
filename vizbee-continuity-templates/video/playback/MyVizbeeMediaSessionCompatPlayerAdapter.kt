@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.vizbee.video.adapter
+package com.example.app.vizbee.video.playback
 
 import android.annotation.SuppressLint
 import android.support.v4.media.session.MediaSessionCompat
@@ -91,7 +91,6 @@ class MyVizbeeMediaSessionCompatPlayerAdapter(
                 playerListener.isContentPlaying() -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PLAYING
                 }
-
                 else -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PAUSED_BY_USER
                 }

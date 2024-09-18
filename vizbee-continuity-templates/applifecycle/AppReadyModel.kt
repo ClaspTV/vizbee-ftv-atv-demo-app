@@ -1,7 +1,7 @@
-package tv.vizbee.screendemo.vizbee.applifecycle
+package com.example.app.vizbee.applifecycle
 
-import android.app.Activity
-import tv.vizbee.screendemo.vizbee.video.deeplink.MyVizbeeDeeplinkManager
+import com.example.app.ui.app.AppViewModel
+import com.example.app.vizbee.video.deeplink.MyVizbeeDeeplinkManager
 
 /**
  * #VizbeeGuide Create an instance of this class by passing the objects necessary to handle deep link and sign in requests.
@@ -10,8 +10,8 @@ import tv.vizbee.screendemo.vizbee.video.deeplink.MyVizbeeDeeplinkManager
  * requests. The object of this class is eligible for garbage collection as soon as the activity
  * is destroyed.
  *
- * @property activity this is a placeholder object. Replace this with the required object(s).
+ * @property appViewModel this is a placeholder object. Replace this with the required object(s).
  */
-class AppReadyModel(val activity: Activity) {
+class AppReadyModel(val appViewModel: AppViewModel) {
     val deeplinkManager = MyVizbeeDeeplinkManager(this)
 }

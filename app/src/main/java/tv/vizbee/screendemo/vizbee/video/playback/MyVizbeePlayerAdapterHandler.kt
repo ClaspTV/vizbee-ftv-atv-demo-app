@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.vizbee.video.adapter
+package tv.vizbee.screendemo.vizbee.video.playback
 
 import android.support.v4.media.session.MediaSessionCompat
 import tv.vizbee.screen.api.Vizbee
@@ -7,13 +7,13 @@ import tv.vizbee.screen.api.messages.VideoTrackInfo
 import tv.vizbee.screendemo.model.Video
 
 /**
- * #VizbeeGuide Implement setPlayerAdapter() as described.
+ * #VizbeeGuide Implement setPlayerAdapter() and getVideoInfo() as described.
  *
  * This class is a helper class for the app to interact with the Vizbee API class in setting and
  * resetting the player adapter.
  *
  * Pass the required video information in app's format (AppVideoInfo) and convert it to
- * Vizbee's video info using AppVideoConverter instance.
+ * Vizbee's video info using getVideoInfo() method.
  */
 class MyVizbeePlayerAdapterHandler(private val isVizbeeEnabled: Boolean) {
 

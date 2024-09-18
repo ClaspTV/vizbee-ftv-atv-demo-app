@@ -43,15 +43,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.databinding.ActivityExoPlayerBinding
 import tv.vizbee.screendemo.model.Video
 import tv.vizbee.screendemo.utils.ExoplayerUtils
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.isVizbeeEnabled
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
-import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeeMediaSessionCompatPlayerAdapter
-import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeePlayerAdapterHandler
+import tv.vizbee.screendemo.vizbee.video.playback.MyVizbeeMediaSessionCompatPlayerAdapter
+import tv.vizbee.screendemo.vizbee.video.playback.MyVizbeePlayerAdapterHandler
 import java.io.IOException
 
 class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
