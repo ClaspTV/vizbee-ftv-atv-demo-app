@@ -4,7 +4,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import tv.vizbee.screen.api.Vizbee
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screen.api.messages.VideoTrackInfo
-import tv.vizbee.screendemo.model.Video
+import tv.vizbee.screendemo.model.video.Video
 
 /**
  * #VizbeeGuide Implement setPlayerAdapter() and getVideoInfo() as described.

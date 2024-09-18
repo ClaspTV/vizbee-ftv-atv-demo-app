@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.model
+package tv.vizbee.screendemo.model.video
 
 import android.os.Parcel
 import android.os.Parcelable

@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.model
+package tv.vizbee.screendemo.model.video
 
 import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.utils.camelCase

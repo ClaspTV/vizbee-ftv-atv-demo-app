@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.ui.adapters;
+package tv.vizbee.screendemo.ui.video;
 
 public interface VizbeeStopCommandHandler {
     void onStopFromSender();

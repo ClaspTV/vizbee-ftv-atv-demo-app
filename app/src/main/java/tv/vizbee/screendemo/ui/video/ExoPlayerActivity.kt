@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.ui.activities
+package tv.vizbee.screendemo.ui.video
 
 import android.content.Intent
 import android.net.Uri
@@ -45,7 +45,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.databinding.ActivityExoPlayerBinding
-import tv.vizbee.screendemo.model.Video
+import tv.vizbee.screendemo.model.video.Video
 import tv.vizbee.screendemo.utils.ExoplayerUtils
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.isVizbeeEnabled
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter

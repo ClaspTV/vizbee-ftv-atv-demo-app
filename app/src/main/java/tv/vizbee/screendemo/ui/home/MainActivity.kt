@@ -1,4 +1,4 @@
-package tv.vizbee.screendemo.ui.activities
+package tv.vizbee.screendemo.ui.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,8 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
 import tv.vizbee.screendemo.databinding.ActivityMainBinding
-import tv.vizbee.screendemo.model.VideoCatalog
-import tv.vizbee.screendemo.vizbee.VizbeeWrapper
+import tv.vizbee.screendemo.model.video.VideoCatalog
+import tv.vizbee.screendemo.ui.video.ExoPlayerActivity
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 
