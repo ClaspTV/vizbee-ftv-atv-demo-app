@@ -23,6 +23,7 @@ class AuthRepository(
         val requestBody = jsonBody.toRequestBody(mediaType)
 
         val response = apiService.fetchAccountRegCode(requestBody)
+        Log.d("AuthRepository", "fetchAccountRegCode response: $response")
         if (response.isSuccessful) {
             val responseBody = response.body()?.string()
             val jsonResponse = JSONObject(responseBody)
