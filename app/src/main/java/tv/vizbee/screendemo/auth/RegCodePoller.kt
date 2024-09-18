@@ -24,13 +24,14 @@ abstract class RegCodePoller(private val scope: CoroutineScope) {
 
     protected var isPollDone = false
 
-    suspend fun requestCode() {
+    suspend fun requestCode(): String {
         isPollDone = false
         setIsCheckDone(false)
 
-        try {
+        return try {
             val regCode = doRequestCode()
             setRegCode(regCode.code)
+            regCode.code
         } catch (exception: Exception) {
             // Handle exception
             throw exception
@@ -42,9 +43,8 @@ abstract class RegCodePoller(private val scope: CoroutineScope) {
         pollJob = scope.launch {
             val code = regCode.value ?: run {
                 requestCode()
-                regCode.value
             }
-            code?.let { startRegCodeProcess(it) }
+            startRegCodeProcess(code)
         }
     }
 
@@ -66,11 +66,9 @@ abstract class RegCodePoller(private val scope: CoroutineScope) {
         return isCheckDone.value == true
     }
 
-    private fun setRegCode(code: String) {
-        scope.launch {
-            withContext(Dispatchers.Main) {
-                _regCode.value = code
-            }
+    private suspend fun setRegCode(code: String) {
+        withContext(Dispatchers.Main) {
+            _regCode.value = code
         }
     }
 

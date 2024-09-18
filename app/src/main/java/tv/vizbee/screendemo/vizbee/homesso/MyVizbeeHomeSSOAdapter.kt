@@ -1,5 +1,14 @@
 package tv.vizbee.screendemo.vizbee.homesso
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import androidx.lifecycle.Observer
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import tv.vizbee.screen.homesso.IVizbeeHomeSSOAdapter
 import tv.vizbee.screen.homesso.VizbeeSignInStatusCallback
@@ -7,6 +16,11 @@ import tv.vizbee.screen.homesso.model.VizbeeSenderSignInInfo
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Failure
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Progress
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Success
+import tv.vizbee.screendemo.auth.AuthManager
+import tv.vizbee.screendemo.auth.MvpdRegCodePoller
+import tv.vizbee.screendemo.data.AuthRepository
+import tv.vizbee.screendemo.data.RegCodePollResult
+import tv.vizbee.screendemo.ui.signin.SignInActivity
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
 import tv.vizbee.utils.ICommandCallback
@@ -22,14 +36,21 @@ import tv.vizbee.utils.ICommandCallback
  * @property appLifecycleAdapter implementation of VizbeeAppLifecycleAdapter
  */
 class MyVizbeeHomeSSOAdapter(
-    private val appLifecycleAdapter: VizbeeAppLifecycleAdapter
+    private val context: Context,
+    private val appLifecycleAdapter: VizbeeAppLifecycleAdapter,
+    private val authRepository: AuthRepository,
+    private val backgroundScope: CoroutineScope,
+    private val mainScope: CoroutineScope
 ) : IVizbeeHomeSSOAdapter, VizbeeSignInStatusListener {
 
     companion object {
-        // #VizbeeGuide replace "your_sign_in_type1" with your own string constant. The same string
-        // should be used in Sender as well. You can add multiple sign in types.
-        val SUPPORTED_SIGN_IN_TYPES = listOf("your_sign_in_type1")
+        const val MVPD_SIGN_IN_TYPE = "MVPD"
+        val SUPPORTED_SIGN_IN_TYPES = listOf(MVPD_SIGN_IN_TYPE)
+        private const val SIGN_IN_TIMEOUT_MS = 30000L // 30 seconds
     }
+
+    private val authManager = AuthManager(context)
+    private val regCodePoller = MvpdRegCodePoller(backgroundScope, authRepository)
 
     // public vars exposed for video deeplink handling logic
     var isHomeSSOReady = false
@@ -164,48 +185,123 @@ class MyVizbeeHomeSSOAdapter(
         //      (iv) These callbacks ensure that the SDK passes information to the mobile and also
         //            shows appropriate UI modals.
 
-        /* Example Code */
-        /*
-        class MyVizbeeSignInManager(callback: VizbeeSignInStatusListener) {
-            fun startSignIn(senderInfo: VizbeeSenderSignInInfo) {
-                if (senderInfo.isSignedIn) {
-                    backgroundSignInManager.startSignIn(senderInfo)
-                } else {
-                    uiSignInManager.startSignIn(senderInfo)
+        if (senderSignInInfo.isSignedIn) {
+            startBackgroundSignIn(MVPD_SIGN_IN_TYPE)
+        } else {
+            startForegroundSignIn(MVPD_SIGN_IN_TYPE)
+        }
+    }
+
+    private fun startBackgroundSignIn(signInType: String) {
+        backgroundScope.launch {
+            try {
+                withTimeoutOrNull(SIGN_IN_TIMEOUT_MS) {
+                    val regCode = regCodePoller.requestCode()
+                    Log.d("MyVizbeeHomeSSOAdapter", "Calling progress regCode: $regCode")
+
+                    withContext(mainScope.coroutineContext) {
+                        onProgress(signInType, regCode)
+                    }
+
+                    val signInResult = CompletableDeferred<RegCodePollResult>()
+
+                    val observer = object : Observer<RegCodePollResult> {
+                        override fun onChanged(result: RegCodePollResult) {
+                            when (result.status) {
+                                RegCodePollResult.Status.DONE -> {
+                                    authManager.setSignedIn(signInType, true)
+                                    signInResult.complete(result)
+                                    regCodePoller.regCodeResult.removeObserver(this)
+                                }
+                                RegCodePollResult.Status.ERROR -> {
+                                    signInResult.complete(result)
+                                    regCodePoller.regCodeResult.removeObserver(this)
+                                }
+                                else -> { /* Do nothing for IN_PROGRESS and NOT_FOUND */ }
+                            }
+                        }
+                    }
+
+                    withContext(mainScope.coroutineContext) {
+                        regCodePoller.regCodeResult.observeForever(observer)
+                    }
+                    regCodePoller.startPoll()
+
+                    // Wait for the sign-in result or timeout
+                    signInResult.await()
+                }?.let { result ->
+                    // If we got a result (not null), process it
+                    when (result.status) {
+                        RegCodePollResult.Status.DONE -> {
+                            withContext(mainScope.coroutineContext) {
+                                Log.d("MyVizbeeHomeSSOAdapter", "Calling success")
+                                onSuccess(signInType)
+                            }
+                        }
+                        else -> {
+                            withContext(mainScope.coroutineContext) {
+                                Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of ERROR status")
+                                onFailure(signInType, false)
+                            }
+                        }
+                    }
+                } ?: run {
+                    // If the result is null, it means we timed out
+                    withContext(mainScope.coroutineContext) {
+                        Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of timeout")
+                        onFailure(signInType, false)
+                    }
                 }
+            } catch (e: Exception) {
+                withContext(mainScope.coroutineContext) {
+                    Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of some exception")
+                    onFailure(signInType, false)
+                }
+            } finally {
+                regCodePoller.stopPoll() // Ensure we stop polling in all cases
             }
         }
-        */
+    }
+
+
+    private fun startForegroundSignIn(signInType: String) {
+        val intent = Intent(context, SignInActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra("signInType", signInType)
+        }
+        context.startActivity(intent)
+
+        // The SignInActivity will handle the sign-in process and update the AuthManager
+        // We'll observe the result in the activity and call the appropriate callbacks
     }
 
     override fun onProgress(signInType: String, regCode: String?) {
-        regCode?.let {
+        mainScope.launch {
             homeSSOSignInCallback?.onProgress(
                 Progress(
                     signInType,
                     JSONObject().apply {
                         put("regcode", regCode)
-                    })
-            )
-        } ?: run {
-            homeSSOSignInCallback?.onProgress(
-                Progress(
-                    signInType,
-                    JSONObject())
+                    }
+                )
             )
         }
     }
 
     override fun onSuccess(signInType: String) {
-        isSignInInProgress = false
-        homeSSOSignInCallback?.onSuccess(Success(signInType))
-        signInStatusListener?.onSuccess(signInType)
+        mainScope.launch {
+            isSignInInProgress = false
+            homeSSOSignInCallback?.onSuccess(Success(signInType))
+            signInStatusListener?.onSuccess(signInType)
+        }
     }
 
     override fun onFailure(signInType: String, isCancelled: Boolean) {
-        isSignInInProgress = false
-        homeSSOSignInCallback?.onFailure(Failure(signInType, "", isCancelled, null))
-        signInStatusListener?.onFailure(signInType, isCancelled)
+        mainScope.launch {
+            isSignInInProgress = false
+            homeSSOSignInCallback?.onFailure(Failure(signInType, "", isCancelled, null))
+            signInStatusListener?.onFailure(signInType, isCancelled)
+        }
     }
 
     // endregion

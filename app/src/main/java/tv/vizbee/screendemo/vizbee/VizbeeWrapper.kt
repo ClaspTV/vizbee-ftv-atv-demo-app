@@ -3,9 +3,14 @@ package tv.vizbee.screendemo.vizbee
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import tv.vizbee.screen.api.Vizbee
 import tv.vizbee.screen.homesso.VizbeeHomeSSOManager
 import tv.vizbee.screendemo.VizbeeTVDemoApplication
+import tv.vizbee.screendemo.data.AuthRepository
+import tv.vizbee.screendemo.network.VizbeeAuthApiService
 import tv.vizbee.screendemo.vizbee.applifecycle.MyVizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.homesso.MyVizbeeHomeSSOAdapter
@@ -22,9 +27,17 @@ class VizbeeWrapper {
 
     private var isVizbeeEnabled: Boolean = false
     val vizbeeAppLifecycleAdapter: VizbeeAppLifecycleAdapter by lazy { MyVizbeeAppLifecycleAdapter() }
+
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     val vizbeeHomeSSOAdapter: MyVizbeeHomeSSOAdapter by lazy {
         MyVizbeeHomeSSOAdapter(
-            vizbeeAppLifecycleAdapter
+            context = applicationContext,
+            appLifecycleAdapter = vizbeeAppLifecycleAdapter,
+            authRepository = AuthRepository(applicationContext, VizbeeAuthApiService.create()),
+            backgroundScope = backgroundScope,
+            mainScope = mainScope
         )
     }
 
@@ -34,6 +47,8 @@ class VizbeeWrapper {
             vizbeeHomeSSOAdapter
         )
     }
+
+    private lateinit var applicationContext: Context
 
     //------
     // Initialisation
@@ -48,6 +63,7 @@ class VizbeeWrapper {
      * @param app Application
      */
     fun initialize(app: Application) {
+        applicationContext = app.applicationContext
 
         isVizbeeEnabled = isVizbeeEnabled(app)
         if (!isVizbeeEnabled) {
