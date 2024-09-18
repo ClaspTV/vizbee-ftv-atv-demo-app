@@ -136,7 +136,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
                 .build()
             mediaSession?.setPlaybackState(playbackState)
         }
-            ?: kotlin.run { applicationContext.vizbeeAppLifecycleAdapter?.getAppReadyModel()?.deeplinkManager?.handleDeeplinkFailure() }
+//            ?: kotlin.run { applicationContext.vizbeeAppLifecycleAdapter?.getAppReadyModel()?.deeplinkManager?.handleDeeplinkFailure() }
     }
 
     private fun updateMediaMetadata() {

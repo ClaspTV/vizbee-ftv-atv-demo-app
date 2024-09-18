@@ -26,14 +26,11 @@
         android:layout_centerInParent="true"
         android:orientation="horizontal">
 
-        <Space
-            android:layout_width="40dp"
-            android:layout_height="5dp" />
-
         <LinearLayout
             android:id="@+id/main_elephants_dream_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:focusable="false"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -54,14 +51,11 @@
                 android:text="@string/via_exo_player" />
         </LinearLayout>
 
-        <Space
-            android:layout_width="40dp"
-            android:layout_height="5dp" />
-
         <LinearLayout
             android:id="@+id/main_tears_of_steel_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:focusable="false"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -84,14 +78,11 @@
 
         </LinearLayout>
 
-        <Space
-            android:layout_width="40dp"
-            android:layout_height="5dp" />
-
         <LinearLayout
             android:id="@+id/main_akamai_live_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:focusable="false"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -113,14 +104,11 @@
                 android:text="@string/via_exo_player" />
         </LinearLayout>
 
-        <Space
-            android:layout_width="40dp"
-            android:layout_height="5dp" />
-
         <LinearLayout
             android:id="@+id/main_sintel_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:focusable="false"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -147,7 +135,7 @@
         </LinearLayout>
 
         <Space
-            android:layout_width="40dp"
+            android:layout_width="20dp"
             android:layout_height="5dp" />
     </LinearLayout>
 </RelativeLayout>
