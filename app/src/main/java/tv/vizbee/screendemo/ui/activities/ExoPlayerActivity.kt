@@ -5,6 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -26,7 +29,9 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.LoadControl
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.source.MediaSource
@@ -38,24 +43,25 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import tv.vizbee.screendemo.model.Video
-import tv.vizbee.screendemo.ui.adapters.ExoPlayerAdapter
-import tv.vizbee.screen.api.Vizbee
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screendemo.R
 import tv.vizbee.screendemo.databinding.ActivityExoPlayerBinding
+import tv.vizbee.screendemo.model.Video
 import tv.vizbee.screendemo.utils.ExoplayerUtils
-import tv.vizbee.screendemo.vizbee.VizbeeWrapper
+import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.isVizbeeEnabled
+import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
+import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeeMediaSessionCompatPlayerAdapter
+import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeePlayerAdapterHandler
 import java.io.IOException
 
 class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
     AdErrorListener, AdEventListener, Player.Listener {
     private lateinit var binding: ActivityExoPlayerBinding
-
-    companion object {
-        const val LOG_TAG = "ExoPlayerActivity"
+    private val vizbeePlayerAdapterHandler by lazy {
+        MyVizbeePlayerAdapterHandler(applicationContext.isVizbeeEnabled)
     }
-
+    private var mediaSession: MediaSessionCompat? = null
+    private var mediaSessionConnector: MediaSessionConnector? = null
 
     private var mHandler: Handler = Handler(Looper.getMainLooper())
     private var mPlayer: ExoPlayer? = null
@@ -68,6 +74,41 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
     private var mIsAdDisplayed = false
     private var mIsAdsInitialized = false
 
+    private val playerListener: MyVizbeeMediaSessionCompatPlayerAdapter.PlayerListener =
+        object : MyVizbeeMediaSessionCompatPlayerAdapter.PlayerListener {
+            override fun isContentPlaying(): Boolean {
+                return mPlayer?.isPlaying ?: false
+            }
+
+            override fun getContentPosition(): Long {
+                return mPlayer?.currentPosition ?: 0
+            }
+
+            override fun getDuration(): Long {
+                return mPlayer?.duration ?: 0
+            }
+
+            override fun isAdPlaying(): Boolean {
+                return mIsAdDisplayed
+            }
+
+            override fun getAdPosition(): Long {
+                return mPlayer?.currentPosition ?: 0
+            }
+
+            override fun getAdDuration(): Long {
+                return mPlayer?.duration ?: 0
+            }
+
+            override fun toggleClosedCaptions() {
+                // Not implemented
+            }
+
+            override fun isClosedCaptioning(): Boolean {
+                return false
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExoPlayerBinding.inflate(layoutInflater)
@@ -75,6 +116,17 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
+        // 1. Initialize player
+        initializeExoPlayer()
+
+        // 2. Initialize MediaSession
+        initializeMediaSession()
+
+        // 5. Initialize & request Ads
+        initializeAds()
+    }
+
+    private fun initializeExoPlayer() {
         // 1. Create a default TrackSelector
         val trackSelector: TrackSelector = DefaultTrackSelector(this)
 
@@ -88,9 +140,76 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
         // 4. Set up the player view
         binding.exoplayerPlayer.player = mPlayer
         binding.exoplayerPlayer.useController = true
+    }
 
-        // 5. Initialize & request Ads
-        initializeAds()
+    private fun initializeMediaSession() {
+        mediaSession = MediaSessionCompat(this, "ExoPlayerMediaSession")
+        mediaSession?.let { session ->
+            session.isActive = true
+
+            mediaSessionConnector = MediaSessionConnector(session)
+            mediaSessionConnector?.let {
+                it.setPlayer(mPlayer)
+            }
+
+
+            session.setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() {
+                    mPlayer?.play()
+                }
+
+                override fun onPause() {
+                    mPlayer?.pause()
+                }
+
+                override fun onSeekTo(pos: Long) {
+                    mPlayer?.seekTo(pos)
+                }
+            })
+
+            updatePlaybackState()
+            updateMediaMetadata()
+
+            mPlayer?.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    updatePlaybackState()
+                }
+
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    updateMediaMetadata()
+                }
+            })
+        }
+    }
+
+    private fun updatePlaybackState() {
+        mPlayer?.let {
+            val state = when {
+                it.isPlaying -> PlaybackStateCompat.STATE_PLAYING
+                it.playbackState == Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+                else -> PlaybackStateCompat.STATE_PAUSED
+            }
+
+            val playbackState = PlaybackStateCompat.Builder()
+                .setState(state, it.currentPosition, it.playbackParameters.speed)
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY or
+                            PlaybackStateCompat.ACTION_PAUSE or
+                            PlaybackStateCompat.ACTION_SEEK_TO
+                )
+                .build()
+
+            mediaSession?.setPlaybackState(playbackState)
+        }
+    }
+
+    private fun updateMediaMetadata() {
+        val mediaMetadata = MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Sample Video Title")
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Sample Artist")
+            .build()
+
+        mediaSession?.setMetadata(mediaMetadata)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -132,7 +251,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
         // ---------------------------
         // [BEGIN] Vizbee Integration
         // ---------------------------
-        VizbeeWrapper.appLifecycleAdapter.setVideoPlaying(true)
+        applicationContext.vizbeeAppLifecycleAdapter?.setVideoPlaying(true)
         // ---------------------------
         // [END] Vizbee Integration
         // ---------------------------
@@ -144,8 +263,8 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
         // ---------------------------
         // [BEGIN] Vizbee Integration
         // ---------------------------
-        VizbeeWrapper.appLifecycleAdapter.setVideoPlaying(false)
-        VizbeeWrapper.resetPlayerAdapter()
+        applicationContext.vizbeeAppLifecycleAdapter?.setVideoPlaying(false)
+        vizbeePlayerAdapterHandler.resetPlayerAdapter()
         // ---------------------------
         // [END] Vizbee Integration
         // ---------------------------
@@ -164,22 +283,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
         // ---------------------------
         // [BEGIN] Vizbee Integration
         // ---------------------------
-        val videoInfo = VideoInfo().apply {
-            this.guid = video?.guid
-            this.title = video?.title
-            this.videoURL = video?.videoURL
-            this.isLive = video?.isLive ?: false
-            this.imageURL = video?.imageUrl
-        }
-
-        Vizbee.getInstance().setPlayerAdapter(
-            videoInfo,
-            ExoPlayerAdapter(mPlayer, this) {
-                onStop()
-                finish()
-            }
-        )
-
+        vizbeePlayerAdapterHandler.setPlayerAdapter(video, mediaSession, playerListener)
         // ---------------------------
         // [END] Vizbee Integration
         // ---------------------------
@@ -195,7 +299,10 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
 
         // Produces DataSource instances through which media data is loaded.
         val dataSourceFactory: DataSource.Factory =
-            DefaultDataSourceFactory(this, DefaultHttpDataSource.Factory().setUserAgent(ExoplayerUtils.getUserAgent(this)))
+            DefaultDataSourceFactory(
+                this,
+                DefaultHttpDataSource.Factory().setUserAgent(ExoplayerUtils.getUserAgent(this))
+            )
 
         // Produces Extractor instances for parsing the media data.
         val extractorsFactory: ExtractorsFactory = DefaultExtractorsFactory()
@@ -358,4 +465,8 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener,
     fun onMediaPeriodReleased(windowIndex: Int, mediaPeriodId: MediaSource.MediaPeriodId?) {}
 
     fun onReadingStarted(windowIndex: Int, mediaPeriodId: MediaSource.MediaPeriodId?) {}
+
+    companion object {
+        const val LOG_TAG = "ExoPlayerActivity"
+    }
 }

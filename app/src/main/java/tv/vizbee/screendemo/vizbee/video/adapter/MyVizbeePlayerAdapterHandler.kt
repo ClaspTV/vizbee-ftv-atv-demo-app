@@ -2,6 +2,8 @@ package tv.vizbee.screendemo.vizbee.video.adapter
 
 import android.support.v4.media.session.MediaSessionCompat
 import tv.vizbee.screen.api.Vizbee
+import tv.vizbee.screen.api.messages.VideoInfo
+import tv.vizbee.screen.api.messages.VideoTrackInfo
 import tv.vizbee.screendemo.model.Video
 
 /**
@@ -22,7 +24,7 @@ class MyVizbeePlayerAdapterHandler(private val isVizbeeEnabled: Boolean) {
      *
      * Invoke this method just after a new video is loaded in your video player.
      *
-     * @param appVideoInfo App's internal media object
+     * @param video App's internal media object
      * @param mediaSessionCompat MediaControllerCompat object
      */
     fun setPlayerAdapter(
@@ -40,7 +42,7 @@ class MyVizbeePlayerAdapterHandler(private val isVizbeeEnabled: Boolean) {
 
         mediaSessionCompat?.let {
 
-            val videoInfo = MyVizbeeMediaConverter().getVideoInfo(video)
+            val videoInfo = getVideoInfo(video)
             videoInfo?.let {
                 playerAdapter = MyVizbeeMediaSessionCompatPlayerAdapter(mediaSessionCompat, vizbeePlayerListener)
                 playerAdapter?.let { Vizbee.getInstance().setPlayerAdapter(videoInfo, it) }
@@ -62,5 +64,36 @@ class MyVizbeePlayerAdapterHandler(private val isVizbeeEnabled: Boolean) {
 
         playerAdapter = null
         Vizbee.getInstance().resetPlayerAdapter()
+    }
+
+    /**
+     * This method converts the app's media object
+     * to Vizbee VideoInfo.
+     *
+     * @param mediaItem App's internal data structure for media.
+     * @return videoInfo Returns the media represented as VideoInfo.
+     */
+    private fun getVideoInfo(mediaItem: Video?): VideoInfo? {
+        return mediaItem?.let {
+            val videoInfo = VideoInfo()
+            videoInfo.guid = it.guid
+            videoInfo.isLive = it.isLive
+            videoInfo.videoURL = it.videoURL
+            videoInfo.title = it.title
+            videoInfo.imageURL = it.imageUrl
+            // You can add description also using videoInfo.description
+
+            // To enable closed captions
+            val tracksList = ArrayList<VideoTrackInfo>()
+            val videoTrackInfo = VideoTrackInfo.Builder(1, VideoTrackInfo.TYPE_TEXT)
+                .setLanguage("en")
+                .setContentId("contentId")
+                .setContentType("contentType")
+                .build()
+            tracksList.add(videoTrackInfo)
+            videoInfo.tracks = tracksList
+
+            return videoInfo
+        }
     }
 }

@@ -9,6 +9,7 @@ import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
 import tv.vizbee.screendemo.databinding.ActivityMainBinding
 import tv.vizbee.screendemo.model.VideoCatalog
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper
+import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 
 class MainActivity : FragmentActivity() {
@@ -42,8 +43,15 @@ class MainActivity : FragmentActivity() {
 
 
         // Let Vizbee know that the app is ready and set the app ready model
+
+        // ---------------------------
+        // Begin SDK Integration
+        // ---------------------------
         appReadyModel = AppReadyModel(this)
-        VizbeeWrapper.setAppReady(appReadyModel!!)
+        applicationContext.vizbeeAppLifecycleAdapter?.setAppReady(appReadyModel!!)
+        // ---------------------------
+        // End SDK Integration
+        // ---------------------------
     }
 
     override fun onStart() {
@@ -99,7 +107,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun printIntentContents(intent: Intent): String? {
+    fun printIntentContents(intent: Intent): String {
         val stringBuilder = StringBuilder()
         stringBuilder.append("Action: ").append(intent.action).append("\n")
         stringBuilder.append("Data: ").append(intent.data).append("\n")
@@ -144,7 +152,14 @@ class MainActivity : FragmentActivity() {
         Log.v(TAG, "onDestroy")
 
         // Clear app ready model
-        VizbeeWrapper.appLifecycleAdapter.clearAppReady()
+
+        // ---------------------------
+        // Begin SDK Integration
+        // ---------------------------
+        applicationContext.vizbeeAppLifecycleAdapter?.clearAppReady()
         appReadyModel = null
+        // ---------------------------
+        // End SDK Integration
+        // ---------------------------
     }
 }

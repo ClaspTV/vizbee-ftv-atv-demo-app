@@ -69,10 +69,10 @@ object ExoplayerUtils {
         }
     }
 
-    /* Returns a new DataSource factory.
+    /**
+     * @param context A context.
+     * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new DataSource factory.
      *
-     * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
-     *     DataSource factory.
      * @return A new DataSource factory.
      */
     fun buildDataSourceFactory(context: Context, useBandwidthMeter: Boolean): DataSource.Factory {

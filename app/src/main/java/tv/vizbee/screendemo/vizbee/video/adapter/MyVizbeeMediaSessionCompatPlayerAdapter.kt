@@ -20,15 +20,15 @@ import tv.vizbee.screen.api.messages.VideoTrackInfo
  * passing them to the media session supplied to it. This class has to handle only closed captions
  * toggle command.
  *
- * @property medaSessionCompat app's media session object
+ * @property mediaSessionCompat app's media session object
  * @property playerListener an implementation of the PlayerListener interface for this object to query
  * about player status and pass commands to the player.
  */
 @SuppressLint("LongLogTag")
 class MyVizbeeMediaSessionCompatPlayerAdapter(
-    medaSessionCompat: MediaSessionCompat,
+    mediaSessionCompat: MediaSessionCompat,
     private val playerListener: PlayerListener
-) : MediaSessionCompatPlayerAdapter(medaSessionCompat) {
+) : MediaSessionCompatPlayerAdapter(mediaSessionCompat) {
 
     /**
      * This interface declares the methods this adapter requires to interact with the player.
@@ -44,8 +44,6 @@ class MyVizbeeMediaSessionCompatPlayerAdapter(
         fun toggleClosedCaptions()
         fun isClosedCaptioning(): Boolean
     }
-
-    private val UNKNOWN: String = "unknown"
 
     private var isPlayingContent = true
 
@@ -93,12 +91,13 @@ class MyVizbeeMediaSessionCompatPlayerAdapter(
                 playerListener.isContentPlaying() -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PLAYING
                 }
+
                 else -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PAUSED_BY_USER
                 }
             }
 
-            var contentPosition = playerListener.getContentPosition()
+            val contentPosition = playerListener.getContentPosition()
             videoStatus.positionMs = contentPosition
             videoStatus.durationMs = playerListener.getDuration()
         }
@@ -141,5 +140,9 @@ class MyVizbeeMediaSessionCompatPlayerAdapter(
                 .setContentType("contentType")
                 .build()
         }
+    }
+
+    companion object {
+        private const val UNKNOWN: String = "unknown"
     }
 }

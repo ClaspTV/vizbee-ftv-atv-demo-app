@@ -29,23 +29,12 @@ public class ExoPlayerAdapter extends VizbeePlayerAdapter {
     private boolean mVideoStarted;
 
     //-----------------------------------------------------
-    // Stop command handler
-    //-----------------------------------------------------
-
-    private VizbeeStopCommandHandler stopCommandHandler;
-
-    public void clearStopCommandHandler() {
-        stopCommandHandler = null;
-    }
-
-    //-----------------------------------------------------
     // Constructor
     //-----------------------------------------------------
 
-    public ExoPlayerAdapter(ExoPlayer exoPlayer, Activity activity, VizbeeStopCommandHandler stopCommandHandler) {
+    public ExoPlayerAdapter(ExoPlayer exoPlayer, Activity activity) {
         this.mExoPlayer = exoPlayer;
         this.activityWeakReference = new WeakReference<>(activity);
-        this.stopCommandHandler = stopCommandHandler;
         this.videoStatus = new VideoStatus();
     }
 

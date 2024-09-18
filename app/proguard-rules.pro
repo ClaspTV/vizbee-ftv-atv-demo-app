@@ -15,3 +15,24 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# ---------------------------
+# Begin SDK Integration
+# ---------------------------
+
+# For keeping Vizbee classes with ProGuard
+-keep class tv.vizbee.** { *; }
+
+-keep class org.json.** { *; }
+
+-dontwarn tv.vizbee.config.api.ui.cards.DeviceStatusCardConfig
+-dontwarn tv.vizbee.environment.Environment
+-dontwarn tv.vizbee.environment.net.handler.factory.NetworkHandlerFactory
+-dontwarn tv.vizbee.environment.net.handler.implementations.reachability.LocalReachabilityIpProvider
+-dontwarn tv.vizbee.environment.net.info.NetworkInfo
+-dontwarn tv.vizbee.environment.net.manager.INetworkManager$NetworkChangeCallback
+-dontwarn tv.vizbee.environment.net.manager.INetworkManager
+
+# ---------------------------
+# End SDK Integration
+# ---------------------------

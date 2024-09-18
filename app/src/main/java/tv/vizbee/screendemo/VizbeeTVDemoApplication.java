@@ -4,7 +4,9 @@ import android.app.Application;
 
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper;
 
-public class ScreenDemoApp extends Application {
+public class VizbeeTVDemoApplication extends Application {
+
+    public VizbeeWrapper vizbeeWrapper;
 
     @Override
     public void onCreate() {
@@ -13,7 +15,8 @@ public class ScreenDemoApp extends Application {
         // ---------------------------
         // Begin SDK Integration
         // ---------------------------
-        VizbeeWrapper.INSTANCE.initialize(this);
+        vizbeeWrapper = new VizbeeWrapper();
+        vizbeeWrapper.initialize(this);
         // ---------------------------
         // End SDK Integration
         // ---------------------------

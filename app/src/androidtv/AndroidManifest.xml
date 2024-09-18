@@ -10,7 +10,7 @@
     <application android:banner="@color/colorPrimaryDark">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
             android:launchMode="singleTask">

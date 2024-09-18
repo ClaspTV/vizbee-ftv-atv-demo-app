@@ -2,17 +2,11 @@ package tv.vizbee.screendemo.vizbee
 
 import android.app.Application
 import android.content.Context
-import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import tv.vizbee.screen.api.Vizbee
-import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
-import tv.vizbee.screen.api.adapter.VizbeePlayerAdapter
-import tv.vizbee.screendemo.model.Video
-import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
+import tv.vizbee.screendemo.VizbeeTVDemoApplication
 import tv.vizbee.screendemo.vizbee.applifecycle.MyVizbeeAppLifecycleAdapter
-import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeeMediaConverter
-import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeeMediaSessionCompatPlayerAdapter
-import tv.vizbee.screendemo.vizbee.video.adapter.MyVizbeePlayerAdapterHandler
+import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.video.deeplink.MyVizbeeAppAdapter
 
 /**
@@ -22,15 +16,11 @@ import tv.vizbee.screendemo.vizbee.video.deeplink.MyVizbeeAppAdapter
  * Vizbee SDK: the Continuity SDK. It has methods to know if Vizbee is enabled
  * by the app and some easy to access adapter objects via extension methods.
  */
-object VizbeeWrapper {
+class VizbeeWrapper {
 
     private var isVizbeeEnabled: Boolean = false
-    val appLifecycleAdapter by lazy {
-        MyVizbeeAppLifecycleAdapter()
-    }
-    private val playerAdapterHandler by lazy {
-        MyVizbeePlayerAdapterHandler(isVizbeeEnabled)
-    }
+    val vizbeeAppLifecycleAdapter: VizbeeAppLifecycleAdapter by lazy { MyVizbeeAppLifecycleAdapter() }
+    val vizbeeAdapter: MyVizbeeAppAdapter by lazy { MyVizbeeAppAdapter(vizbeeAppLifecycleAdapter) }
 
     //------
     // Initialisation
@@ -54,11 +44,9 @@ object VizbeeWrapper {
             )
             return
         }
-        val appAdapter: VizbeeAppAdapter = MyVizbeeAppAdapter(app, appLifecycleAdapter)
-        Vizbee.getInstance().enableVerboseLogging()
 
         // Initialise Vizbee Continuity SDK
-        Vizbee.getInstance().initialize(app, getVizbeeAppId(app), appAdapter)
+        Vizbee.getInstance().initialize(app, getVizbeeAppId(app), vizbeeAdapter)
     }
 
     //------
@@ -105,43 +93,20 @@ object VizbeeWrapper {
     }
 
     /**
-     * Set video player adapter with app's media
-     * object. This method will convert the
-     * app's media object to Vizbee VideoInfo
-     * and then call setPlayerAdapter.
+     * #VizbeeGuide Make sure to create the VizbeeWrapper instance in Application class.
      *
-     *
-     * Invoke this method just after a new video
-     * is loaded in your video player.
-     *
-     * @param mediaItem App's internal media object
+     * This companion object defines the extension getters for a few major components in the integration.
      */
-    fun setPlayerAdapter(
-        mediaItem: Video?,
-        mediaSessionCompat: MediaSessionCompat,
-        playerListener: MyVizbeeMediaSessionCompatPlayerAdapter.PlayerListener
-    ) {
-        mediaItem?.let {
-            playerAdapterHandler.setPlayerAdapter(it, mediaSessionCompat, playerListener)
-        }
-    }
+    companion object {
+        private val Context.application get() = applicationContext as? VizbeeTVDemoApplication
 
-    /**
-     * Reset video player adapter.
-     *
-     *
-     * Invoke this method just after a video
-     * ends or is interrupted in your video player.
-     */
-    fun resetPlayerAdapter() {
-        playerAdapterHandler.resetPlayerAdapter()
-    }
+        val Context.vizbeeAppLifecycleAdapter
+            get() = application?.vizbeeWrapper?.vizbeeAppLifecycleAdapter
 
-    fun clearAppReady() {
-        appLifecycleAdapter.clearAppReady()
-    }
+        val Context.vizbeeWrapper
+            get() = application?.vizbeeWrapper
 
-    fun setAppReady(appReadyModel: AppReadyModel) {
-        appLifecycleAdapter.setAppReady(appReadyModel)
+        val Context.isVizbeeEnabled
+            get() = vizbeeWrapper?.isVizbeeEnabled ?: false
     }
 }

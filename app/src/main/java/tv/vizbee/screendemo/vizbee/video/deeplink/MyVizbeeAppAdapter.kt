@@ -1,6 +1,5 @@
 package tv.vizbee.screendemo.vizbee.video.deeplink
 
-import android.app.Application
 import android.util.Log
 import tv.vizbee.screen.api.adapter.VizbeeAppAdapter
 import tv.vizbee.screen.api.messages.VideoInfo
@@ -13,28 +12,21 @@ import tv.vizbee.utils.Logger
  *
  * This class implements VizbeeAppAdapter to handle all "start or deeplink to a new video" command sent by your mobile app.
  *
- * @property application application object
  * @property appLifecycleAdapter Vizbee lifecycle adapter implementation
  */
-class MyVizbeeAppAdapter(
-    private val application: Application,
-    private val appLifecycleAdapter: VizbeeAppLifecycleAdapter
-) : VizbeeAppAdapter() {
+class MyVizbeeAppAdapter(private val appLifecycleAdapter: VizbeeAppLifecycleAdapter) : VizbeeAppAdapter() {
 
     private var startVideoRequest: StartVideoRequest? = null
 
     init {
         appLifecycleAdapter.addAppLifecycleListener(object : VizbeeAppLifecycleAdapter.AppLifecycleListener {
             override fun onAppReady(appReadyModel: AppReadyModel) {
-                val haveSavedStartVideoRequest = (null != startVideoRequest)
-                Log.v(LOG_TAG, " do we have a saved start video request? = $haveSavedStartVideoRequest")
+                Log.v(LOG_TAG, " do we have a saved start video request? = ${startVideoRequest != null}")
 
-                if (haveSavedStartVideoRequest) {
-                    startVideoRequest?.let {
-                        onStart(it.videoInfo, it.positionMs)
-                        startVideoRequest = null;
-                    }
-                }
+                startVideoRequest?.let {
+                    appReadyModel.deeplinkManager.deeplinkVideo(it.videoInfo, it.positionMs)
+                    startVideoRequest = null
+                } ?: kotlin.run { }
             }
 
             override fun onAppUnReady() {
@@ -60,23 +52,16 @@ class MyVizbeeAppAdapter(
 
         // Deep linking can use default VideoInfo fields or custom metadata
         Log.v(LOG_TAG, "onStart: videoInfo = $videoInfo \n position = $positionMs")
-        if (!appLifecycleAdapter.isAppReady()) {
+
+        if (appLifecycleAdapter.isAppReady()) {
+
+            Logger.i(LOG_TAG, "App is ready. Proceeding for deeplink next steps")
+            val appReadyModel = appLifecycleAdapter.getAppReadyModel()
+            appReadyModel?.deeplinkManager?.deeplinkVideo(videoInfo, positionMs)
+        } else {
+
             Logger.v(LOG_TAG, "App is not ready yet. Saving start video.")
             startVideoRequest = StartVideoRequest(videoInfo, positionMs)
-            return
-        }
-
-        Logger.i(LOG_TAG, "App is ready. Proceeding for deeplink next steps")
-        val appReadyModel = appLifecycleAdapter.getAppReadyModel()
-        appReadyModel?.let {
-
-            // Note: if app needs to wait for the sign in by a specific sign in type,
-            // please replace the following line by authStatusProvider.isSignedIn(signIntypeRequired)
-
-            // Check if user is already signed in, if yes proceed for deeplink
-            val json = videoInfo.customMetadata
-            Log.v(LOG_TAG, "onStart: custom metadata $json")
-            it.deeplinkManager.deeplinkVideo(videoInfo, positionMs)
         }
     }
 

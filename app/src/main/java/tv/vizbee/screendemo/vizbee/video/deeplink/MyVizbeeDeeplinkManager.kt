@@ -4,13 +4,13 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screen.api.Vizbee
 import tv.vizbee.screen.api.adapter.VizbeePlayerAdapter
 import tv.vizbee.screen.api.messages.PlaybackStatus
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screen.api.messages.VideoStatus
 import tv.vizbee.screendemo.ui.activities.MainActivity
+import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 
 /**
  * #VizbeeGuide Implement deeplinkVideo() method as described.
@@ -19,7 +19,7 @@ import tv.vizbee.screendemo.ui.activities.MainActivity
  *
  * @property appReadyModel app ready model to get access to integration adapter
  */
-class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) : VizbeeDeeplinkManager {
+class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) {
 
     private var videoInfo: VideoInfo? = null
 
@@ -31,7 +31,7 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) : Vizbee
      * @param videoInfo The information about the video or audio to start.
      * @param positionMs The start position of the video or audio in milliseconds.
      */
-    override fun deeplinkVideo(videoInfo: VideoInfo, positionMs: Long) {
+    fun deeplinkVideo(videoInfo: VideoInfo, positionMs: Long) {
         this.videoInfo = videoInfo
 
         val context = appReadyModel.activity
@@ -41,21 +41,25 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) : Vizbee
         val streamType = customMetadata.optString("streamType") ?: "vod"
 
         // 2. Deeplink the video.
-        Log.d(
-            LOG_TAG,
-            "Deeplink is invoked with context = $context\nvideoInfo = $videoInfo\nposition = $positionMs"
-        )
-        val intent = Intent(appReadyModel.activity, MainActivity::class.java).apply {
-            putExtra("guid", videoInfo.guid)
-            putExtra("title", videoInfo.title)
-            putExtra("isLive", videoInfo.isLive)
-            putExtra("videoUrl", videoInfo.videoURL)
-            putExtra("imageUrl", videoInfo.imageURL)
-            putExtra("streamType", streamType)
-            putExtra("position", positionMs)
-        }
+        try {
+            Log.d(
+                LOG_TAG,
+                "Deeplink is invoked with context = $context\nvideoInfo = $videoInfo\nposition = $positionMs"
+            )
+            val intent = Intent(appReadyModel.activity, MainActivity::class.java).apply {
+                putExtra("guid", videoInfo.guid)
+                putExtra("title", videoInfo.title)
+                putExtra("isLive", videoInfo.isLive)
+                putExtra("videoUrl", videoInfo.videoURL)
+                putExtra("imageUrl", videoInfo.imageURL)
+                putExtra("streamType", streamType)
+                putExtra("position", positionMs)
+            }
 
-        context.startActivity(intent)
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            handleDeeplinkFailure()
+        }
     }
 
     /**
@@ -63,7 +67,7 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) : Vizbee
      *
      * #VizbeeGuide Do not modify this method.
      */
-    override fun handleDeeplinkFailure() {
+    fun handleDeeplinkFailure() {
 
         var sentLoadingStatus = false
         videoInfo?.let {
@@ -96,19 +100,6 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) : Vizbee
                 Vizbee.getInstance().resetPlayerAdapter()
             }, 1000L)
         }
-    }
-
-    /**
-     * Simulates a deep link failure to dismiss the mobile player card when the deep link is waiting
-     * for a sign in.
-     *
-     * #VizbeeGuide Do not modify this method.
-     *
-     * @param videoInfo video info in Vizbee format.
-     */
-    override fun sendFakeDeeplinkFailure(videoInfo: VideoInfo) {
-        this.videoInfo = videoInfo
-        handleDeeplinkFailure()
     }
 
     companion object {

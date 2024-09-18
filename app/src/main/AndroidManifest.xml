@@ -10,7 +10,7 @@
         android:required="false" />
 
     <application
-        android:name=".ScreenDemoApp"
+        android:name=".VizbeeTVDemoApplication"
         android:allowBackup="true"
         android:banner="@color/colorPrimaryDark"
         android:icon="@mipmap/ic_launcher"
@@ -34,10 +34,6 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ui.activities.VideoViewPlayerActivity"
-            android:launchMode="singleTop" />
 
         <activity
             android:name=".ui.activities.ExoPlayerActivity"
