@@ -286,6 +286,7 @@ class MyVizbeeHomeSSOAdapter(
                 backgroundScope.launch {
                     authManager.setSignedIn(signInType, true)
                     isSignInInProgress = false
+                    signInStatusListener?.onSuccess(signInType)
                     Log.d("MyVizbeeHomeSSOAdapter", "Sign-in successful, delaying callback")
 
                     // Delay in the background

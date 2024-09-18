@@ -2,6 +2,7 @@ package tv.vizbee.screendemo.vizbee.video.deeplink
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import tv.vizbee.screen.api.messages.VideoInfo
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
@@ -39,6 +40,7 @@ class MyVizbeeDeeplinkSignallingManager(
         homeSSOAdapter.homeSSOReadyListener = object : MyVizbeeHomeSSOAdapter.HomeSSOReadyListener {
             override fun onHomeSSOReady() {
                 startVideoRequest?.let {
+                    Log.d(LOG_TAG, "onHomeSSOReady called")
                     performSignInChecksAndDeeplink(it.videoInfo, it.positionMs)
                     startVideoRequest = null;
                 }
@@ -62,6 +64,7 @@ class MyVizbeeDeeplinkSignallingManager(
     ) {
         this.deeplinkCallback = deeplinkCallback
         this.waitingForSignInCallback = waitingForSignInCallback
+        Log.d(LOG_TAG, "signalDeeplink called")
         performSignInChecksAndDeeplink(videoInfo, positionMs)
     }
 
@@ -78,6 +81,7 @@ class MyVizbeeDeeplinkSignallingManager(
             return
         }
 
+        Log.d(LOG_TAG, "performSignInChecksAndDeeplink called, isSignedIn = ${homeSSOAdapter.isSignedIn()}")
         if (homeSSOAdapter.isSignedIn()) {
             deeplink()
         } else {
@@ -95,6 +99,9 @@ class MyVizbeeDeeplinkSignallingManager(
         // progress otherwise we'll deeplink. For progress cases, we'll wait for sign in
         // success/failure
 
+        Log.d(LOG_TAG, "performFirstVideoBasedSignInChecksAndDeeplink called, " +
+                "shouldCheckForFirstVideo = ${firstVideoUseCaseInfoProvider.shouldCheckForFirstVideo()}, " +
+                "isFirstVideoRequest = ${firstVideoUseCaseInfoProvider.isFirstVideoRequest()}")
         if (firstVideoUseCaseInfoProvider.shouldCheckForFirstVideo()) {
             // Checking if the start video request received for first time in app sender connected session
             if (firstVideoUseCaseInfoProvider.isFirstVideoRequest()) {
@@ -113,6 +120,7 @@ class MyVizbeeDeeplinkSignallingManager(
 
     private fun doSignInProgressCheckAndDeeplink() {
         // If the sign in is in progress, let's wait for it. Otherwise, just deep link.
+        Log.d(LOG_TAG, "doSignInProgressCheckAndDeeplink called, isSignInInProgress = ${homeSSOAdapter.isSignInInProgress}")
         if (homeSSOAdapter.isSignInInProgress) {
             waitForSignInUpdateAndDeeplink()
         } else {
@@ -121,24 +129,29 @@ class MyVizbeeDeeplinkSignallingManager(
     }
 
     private fun waitForSignInUpdateAndDeeplink() {
+        Log.d(LOG_TAG, "waitForSignInUpdateAndDeeplink called")
         appLifecycleAdapter.getAppReadyModel()?.let { waitingForSignInCallback?.invoke(it) }
 
         homeSSOAdapter.signInStatusListener = object : VizbeeSignInStatusListener {
             override fun onProgress(signInType: String, regCode: String?) {
                 // do nothing
+                Log.d(LOG_TAG, "onProgress called")
             }
 
             override fun onSuccess(signInType: String) {
                 deeplink()
+                Log.d(LOG_TAG, "onSuccess called")
             }
             override fun onFailure(signInType: String, isCancelled: Boolean) {
                 deeplink()
+                Log.d(LOG_TAG, "onFailure called")
             }
         }
     }
 
     // Inform the adapter to deeplink the video
     private fun deeplink() {
+        Log.d(LOG_TAG, "deeplink called")
         appLifecycleAdapter.getAppReadyModel()?.let { this.deeplinkCallback?.invoke(it) }
         homeSSOAdapter.signInStatusListener = null
     }
@@ -161,4 +174,8 @@ class MyVizbeeDeeplinkSignallingManager(
     data class StartVideoRequest(val videoInfo: VideoInfo, val positionMs: Long)
 
     // endregion
+
+    companion object {
+        const val LOG_TAG = "MyVizbeeDeeplinkSignallingManager"
+    }
 }
