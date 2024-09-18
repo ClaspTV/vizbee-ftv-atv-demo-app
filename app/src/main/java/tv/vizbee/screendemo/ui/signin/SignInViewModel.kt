@@ -4,14 +4,20 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import tv.vizbee.screendemo.auth.MvpdRegCodePoller
 import tv.vizbee.screendemo.data.AuthRepository
 import tv.vizbee.screendemo.data.RegCodePollResult
 import tv.vizbee.screendemo.network.VizbeeAuthApiService
+import tv.vizbee.screendemo.vizbee.homesso.SignInCallbackHolder
 
-class SignInViewModel(application: Application) : AndroidViewModel(application) {
+class SignInViewModel(
+    application: Application,
+    private val signInType: String
+) : AndroidViewModel(application) {
     private val authApiService = VizbeeAuthApiService.create()
     private val authRepository = AuthRepository(application, authApiService)
     private val regCodePoller = MvpdRegCodePoller(viewModelScope, authRepository)
@@ -28,8 +34,15 @@ class SignInViewModel(application: Application) : AndroidViewModel(application) 
     private fun observeRegCodePoller() {
         regCodePoller.regCodeResult.observeForever { result ->
             when (result.status) {
-                RegCodePollResult.Status.DONE -> _signInState.value = SignInState.Success
-                RegCodePollResult.Status.ERROR -> _signInState.value = SignInState.Error(result.error ?: "Unknown error occurred")
+                RegCodePollResult.Status.DONE -> {
+                    _signInState.value = SignInState.Success
+                    SignInCallbackHolder.getListener()?.onSuccess(signInType)
+                }
+                RegCodePollResult.Status.ERROR -> {
+                    val errorMessage = result.error ?: "Unknown error occurred"
+                    _signInState.value = SignInState.Error(errorMessage)
+                    SignInCallbackHolder.getListener()?.onFailure(signInType, false)
+                }
                 RegCodePollResult.Status.IN_PROGRESS -> _signInState.value = SignInState.Loading
                 RegCodePollResult.Status.NOT_FOUND -> _signInState.value = SignInState.Loading
             }
@@ -46,13 +59,14 @@ class SignInViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             try {
                 _signInState.value = SignInState.Loading
-                regCodePoller.requestCode()
+                val code = regCodePoller.requestCode()
+                SignInCallbackHolder.getListener()?.onProgress(signInType, code)
             } catch (e: Exception) {
                 _signInState.value = SignInState.Error(e.message ?: "Unknown error occurred")
+                SignInCallbackHolder.getListener()?.onFailure(signInType, false)
             }
         }
     }
-
     fun startPolling() {
         _signInState.value = SignInState.Loading
         regCodePoller.startPoll()
@@ -73,4 +87,17 @@ sealed class SignInState {
     data object Loading : SignInState()
     data object Success : SignInState()
     data class Error(val message: String) : SignInState()
+}
+
+class SignInViewModelFactory(
+    private val application: Application,
+    private val signInType: String
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SignInViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SignInViewModel(application, signInType) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

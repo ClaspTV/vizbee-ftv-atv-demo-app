@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -47,6 +48,7 @@ class MyVizbeeHomeSSOAdapter(
         const val MVPD_SIGN_IN_TYPE = "MVPD"
         val SUPPORTED_SIGN_IN_TYPES = listOf(MVPD_SIGN_IN_TYPE)
         private const val SIGN_IN_TIMEOUT_MS = 30000L // 30 seconds
+        private const val SIGN_IN_SUCCESS_DELAY = 1000L // 1 second delay
     }
 
     private val authManager = AuthManager(context)
@@ -265,14 +267,52 @@ class MyVizbeeHomeSSOAdapter(
 
 
     private fun startForegroundSignIn(signInType: String) {
+        SignInCallbackHolder.setListener(object : VizbeeSignInStatusListener {
+            override fun onProgress(signInType: String, regCode: String?) {
+                mainScope.launch {
+                    Log.d("MyVizbeeHomeSSOAdapter", "Calling onProgress with regCode: $regCode")
+                    homeSSOSignInCallback?.onProgress(
+                        Progress(
+                            signInType,
+                            JSONObject().apply {
+                                put("regcode", regCode)
+                            }
+                        )
+                    )
+                }
+            }
+
+            override fun onSuccess(signInType: String) {
+                backgroundScope.launch {
+                    authManager.setSignedIn(signInType, true)
+                    isSignInInProgress = false
+                    Log.d("MyVizbeeHomeSSOAdapter", "Sign-in successful, delaying callback")
+
+                    // Delay in the background
+                    delay(SIGN_IN_SUCCESS_DELAY)
+
+                    // Switch to main thread for UI updates
+                    withContext(mainScope.coroutineContext) {
+                        Log.d("MyVizbeeHomeSSOAdapter", "Calling onSuccess after delay")
+                        homeSSOSignInCallback?.onSuccess(Success(signInType))
+                    }
+                }
+            }
+
+            override fun onFailure(signInType: String, isCancelled: Boolean) {
+                mainScope.launch {
+                    isSignInInProgress = false
+                    Log.d("MyVizbeeHomeSSOAdapter", "Calling onFailure")
+                    homeSSOSignInCallback?.onFailure(Failure(signInType, "", isCancelled, null))
+                }
+            }
+        })
+
         val intent = Intent(context, SignInActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             putExtra("signInType", signInType)
         }
         context.startActivity(intent)
-
-        // The SignInActivity will handle the sign-in process and update the AuthManager
-        // We'll observe the result in the activity and call the appropriate callbacks
     }
 
     override fun onProgress(signInType: String, regCode: String?) {
