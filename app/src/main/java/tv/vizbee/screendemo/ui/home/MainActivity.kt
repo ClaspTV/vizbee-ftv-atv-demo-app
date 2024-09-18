@@ -25,23 +25,6 @@ class MainActivity : FragmentActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mainVideoOneImage.setOnClickListener {
-            launchExoplayerActivity(VideoCatalog.SINTEL)
-        }
-
-        binding.mainVideoTwoImage.setOnClickListener {
-            launchExoplayerActivity(VideoCatalog.BIG_BUCK_BUNNY)
-        }
-
-        binding.mainVideoThreeImage.setOnClickListener {
-            launchExoplayerActivity(VideoCatalog.TEARS_OF_STEEL)
-        }
-
-        binding.mainVideoFourImage.setOnClickListener {
-            launchExoplayerActivity(VideoCatalog.ELEPHANTS_DREAM)
-        }
-
-
         // Let Vizbee know that the app is ready and set the app ready model
 
         // ---------------------------
@@ -52,6 +35,26 @@ class MainActivity : FragmentActivity() {
         // ---------------------------
         // End SDK Integration
         // ---------------------------
+
+        setListeners()
+    }
+
+    private fun setListeners() {
+        binding.mainSintelLayout.setOnClickListener {
+            launchExoplayerActivity(VideoCatalog.SINTEL)
+        }
+
+        binding.mainAkamaiLiveLayout.setOnClickListener {
+            launchExoplayerActivity(VideoCatalog.AKAMAI_LIVE_STREAM)
+        }
+
+        binding.mainTearsOfSteelLayout.setOnClickListener {
+            launchExoplayerActivity(VideoCatalog.TEARS_OF_STEEL)
+        }
+
+        binding.mainElephantsDreamLayout.setOnClickListener {
+            launchExoplayerActivity(VideoCatalog.ELEPHANTS_DREAM)
+        }
     }
 
     override fun onStart() {
@@ -82,7 +85,6 @@ class MainActivity : FragmentActivity() {
         // ---------------------------
 
         setIntent(intent)
-        Log.i(TAG, "onNewIntent ${printIntentContents(intent!!)}")
     }
 
     override fun onResume() {
@@ -91,7 +93,6 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun handleIntent() {
-        Log.i(TAG, "HandleIntent ${printIntentContents(intent)}")
         val extras = intent.extras
         if (null != extras && !extras.containsKey("duplicate")) {
             intent.putExtra("duplicate", true)
@@ -107,23 +108,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun printIntentContents(intent: Intent): String {
-        val stringBuilder = StringBuilder()
-        stringBuilder.append("Action: ").append(intent.action).append("\n")
-        stringBuilder.append("Data: ").append(intent.data).append("\n")
-        stringBuilder.append("Type: ").append(intent.type).append("\n")
-        stringBuilder.append("Extras:\n")
-        val extras = intent.extras
-        if (extras != null) {
-            for (key in extras.keySet()) {
-                val value = extras[key]
-                stringBuilder.append("   ").append(key).append(": ").append(value).append("\n")
-            }
-        }
-        stringBuilder.append("Flags: ").append(intent.flags).append("\n")
-        return stringBuilder.toString()
-    }
-
     private fun launchExoplayerActivity(guid: String, position: Long = 0) {
         var video = VideoCatalog.all[guid]
         if (null == video) {
@@ -131,11 +115,12 @@ class MainActivity : FragmentActivity() {
             video = VideoCatalog.all[VideoCatalog.ELEPHANTS_DREAM]
         }
 
-        Log.d(TAG, java.lang.String.format("Launching ExoPlayerActivity with video: %s @ %d", video?.title, position))
+        Log.d(TAG, String.format("Launching ExoPlayerActivity with video: %s @ %d", video?.title, position))
         startActivity(
-            Intent(this, ExoPlayerActivity::class.java)
-                .putExtra("video", video)
-                .putExtra("position", position)
+            Intent(this, ExoPlayerActivity::class.java).apply {
+                this.putExtra("video", video)
+                this.putExtra("position", position)
+            }
         )
     }
 

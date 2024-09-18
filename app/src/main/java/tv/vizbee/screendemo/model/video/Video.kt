@@ -5,14 +5,13 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 
 open class Video : Parcelable {
-    var title: String?
+    var title: String
         private set
-    var guid: String?
+    var guid: String
         private set
-    var videoURL: String?
+    var videoURL: String
         private set
-
-    var imageUrl: String?
+    var imageUrl: String
         private set
     var isLive: Boolean = false
         private set
@@ -22,7 +21,14 @@ open class Video : Parcelable {
     var imageRes: Int
         private set
 
-    constructor(title: String?, guid: String?, videoURL: String?,imageUrl: String?, imageRes: Int, isLive: Boolean = false) {
+    constructor(
+        title: String,
+        guid: String,
+        videoURL: String,
+        imageUrl: String,
+        imageRes: Int,
+        isLive: Boolean = false
+    ) {
         this.title = title
         this.guid = guid
         this.videoURL = videoURL
@@ -32,10 +38,10 @@ open class Video : Parcelable {
     }
 
     protected constructor(`in`: Parcel) {
-        title = `in`.readString()
-        guid = `in`.readString()
-        videoURL = `in`.readString()
-        imageUrl = `in`.readString()
+        title = `in`.readString()!!
+        guid = `in`.readString()!!
+        videoURL = `in`.readString()!!
+        imageUrl = `in`.readString()!!
         imageRes = `in`.readInt()
     }
 

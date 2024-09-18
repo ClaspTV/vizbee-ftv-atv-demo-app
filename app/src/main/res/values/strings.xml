@@ -1,18 +1,17 @@
 <resources>
-    <string name="app_name">FireTV Demo App</string>
-
     <!--  region Main  -->
     <string name="vizbee_demo_title">Vizbee Demo App</string>
-    <string name="title1">Sintel</string>
-    <string name="title2">Big Buck Bunny</string>
-    <string name="title3">Tears of Steel</string>
-    <string name="title4">Elephant\'s Dream</string>
+    <string name="sintel_title">Sintel</string>
+    <string name="big_buck_bunny_title">Big Buck Bunny</string>
+    <string name="tears_of_steel_title">Tears of Steel</string>
+    <string name="elephants_dream_title">Elephant\'s Dream</string>
+    <string name="akamai_live_stream_title">Akamai Live Stream</string>
     <string name="via_video_view">Via VideoView</string>
     <string name="via_exo_player">Via ExoPlayer</string>
     <!--  endregion  -->
 
     <!--  region init  -->
-    <string name="vizbee_app_id">vzb2000002</string>
+    <string name="vizbee_app_id">vzb2000001</string>
     <!--  endregion  -->
 
     <string name="dummy_button">Dummy Button</string>

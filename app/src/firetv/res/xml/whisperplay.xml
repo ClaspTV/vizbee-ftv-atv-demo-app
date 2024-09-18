@@ -1,7 +1,7 @@
 <whisperplay>
     <dial>
         <application>
-            <dialid>ftvreceiver_demo</dialid>
+            <dialid>vizbeedemo</dialid>
             <startAction>android.intent.action.MAIN</startAction>
         </application>
     </dial>
