@@ -34,7 +34,7 @@ Look for the block comments with text "[BEGIN] Vizbee Integration" and "[END] Vi
 ## Player Adapter
 ### Creation
 1. Use the [MyVizbeeMediaSessionCompatPlayerAdapter](app/src/main/java/tv/vizbee/screendemo/vizbee/video/playback/MyVizbeeMediaSessionCompatPlayerAdapter.kt) file to customize player adapter implementation.
-2. Ensure that you are using your MyVizbeeMediaSessionCompatPlayerAdapter in the [VizbeeWrapper](app/src/main/java/tv/vizbee/screendemo/vizbee/VizbeeWrapper.kt).
+2. Ensure that you are using your MyVizbeeMediaSessionCompatPlayerAdapter in the [MyVizbeePlayerAdapterHandler](app/src/main/java/tv/vizbee/screendemo/vizbee/video/playback/MyVizbeePlayerAdapterHandler.kt).
 
 ### Set & Reset
 1. Invoke the setPlayerAdapter as soon as video begins to load like `vizbeePlayerAdapterHandler.setPlayerAdapter(video, mediaSession, playerListener)` in the [ExoPlayerActivity](app/src/main/java/tv/vizbee/screendemo/ui/video/ExoPlayerActivity.kt) (Setting the adapter soon after invoking playback ensures that there are no race conditions with previously playing video and also the mobile user sees all initial loading/buffering states on mobile UI)
