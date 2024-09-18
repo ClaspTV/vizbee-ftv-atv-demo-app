@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import tv.vizbee.screendemo.databinding.ActivitySignInBinding
+import tv.vizbee.screendemo.vizbee.homesso.SignInCallbackHolder
 
 class SignInActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignInBinding
@@ -15,7 +16,9 @@ class SignInActivity : AppCompatActivity() {
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[SignInViewModel::class.java]
+        val signInType = intent.getStringExtra("signInType") ?: "MVPD"
+
+        viewModel = ViewModelProvider(this, SignInViewModelFactory(application, signInType))[SignInViewModel::class.java]
 
         setupObservers()
         viewModel.requestCode()
@@ -29,6 +32,11 @@ class SignInActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         viewModel.stopPolling()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SignInCallbackHolder.clearListener()
     }
 
     private fun setupObservers() {
