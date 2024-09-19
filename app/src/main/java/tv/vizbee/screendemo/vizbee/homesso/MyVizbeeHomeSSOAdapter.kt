@@ -163,9 +163,6 @@ class MyVizbeeHomeSSOAdapter(
         // its progress, success/failure to this class via callback. Note that calling onProgress()
         // is only required for sign in approaches that need a registration code to be authenticated.
 
-        /* Example Code */
-        // MyVizbeeSignInManager(callback = this)?.startSignIn(senderSignInInfo)
-
         // Vizbee Recommendation:
         // (1) For approaches that need registration code authentication,
         //     (a) If mobile is NOT signed in, implement sign in by showing your app's regular sign in screen

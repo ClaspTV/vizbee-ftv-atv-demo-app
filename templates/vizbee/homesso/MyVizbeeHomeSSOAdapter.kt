@@ -136,12 +136,17 @@ class MyVizbeeHomeSSOAdapter(
         this.homeSSOSignInCallback = callback
         this.isMobileSignedIn = senderSignInInfo.isSignedIn
 
-        // #VizbeeGuide Implement your own delegate classes to start the sign in process and inform
-        // its progress, success/failure to this class via callback. Note that calling onProgress()
-        // is only required for sign in approaches that need a registration code to be authenticated.
+        // #VizbeeGuide Implement your own logic to start the sign in process and inform
+        // its progress, success/failure to this class via callback.
 
-        /* Example Code */
-        // MyVizbeeSignInManager(callback = this)?.startSignIn(senderSignInInfo)
+        /*
+            // Example Code
+            if (senderSignInInfo.isSignedIn) {
+                startBackgroundSignIn(MVPD_SIGN_IN_TYPE)
+            } else {
+                startForegroundSignIn(MVPD_SIGN_IN_TYPE)
+            }
+        */
 
         // Vizbee Recommendation:
         // (1) For approaches that need registration code authentication,
@@ -163,19 +168,6 @@ class MyVizbeeHomeSSOAdapter(
         //      (iii) If sign in fails or is cancelled, call onFailure(signInType, isCancelled).
         //      (iv) These callbacks ensure that the SDK passes information to the mobile and also
         //            shows appropriate UI modals.
-
-        /* Example Code */
-        /*
-        class MyVizbeeSignInManager(callback: VizbeeSignInStatusListener) {
-            fun startSignIn(senderInfo: VizbeeSenderSignInInfo) {
-                if (senderInfo.isSignedIn) {
-                    backgroundSignInManager.startSignIn(senderInfo)
-                } else {
-                    uiSignInManager.startSignIn(senderInfo)
-                }
-            }
-        }
-        */
     }
 
     override fun onProgress(signInType: String, regCode: String?) {
