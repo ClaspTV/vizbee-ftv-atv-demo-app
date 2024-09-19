@@ -23,7 +23,7 @@ Look for the block comments with text "[BEGIN] Vizbee Integration" and "[END] Vi
 3. Create and implement a [ReceiverOptionsProvider](/app/src/androidtv/java/tv/vizbee/screendemo/MyAppReceiverOptionsProvider.kt) to provide CastReceiverOptions and specify this in your AndroidManifest file.
 
 ### Code Setup
-Copy the files under [vizbee package](app/src/main/java/tv/vizbee/screendemo/vizbee) to your app under an appropriate package. The following are the key components of above files
+Copy the template files under [vizbee package](app/src/main/java/tv/vizbee/screendemo/vizbee) to your app under an appropriate package. The following are the key components of above files
 
 #### VizbeeWrapper
 The `VizbeeWrapper.kt` acts as the primary interface for integrating Vizbee into your app. It manages SDK initialization and offers methods to seamlessly handle all aspects of Vizbee’s integration.
