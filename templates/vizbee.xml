@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Your app's theme colors -->
+    <!--
+      1. Primary Color - this is typically the background color used on most of your app screens
+      2. Secondary Color - this is the highlight or accent color used on buttons etc. in your app screens
+      3. Tertiary Color - this is the text color used in most of your app screens
+      4. Subtext Color - this is the color used for subtitles and descriptions used in most of your app screens
+
+      Update the colors below to suit your app.
+    -->
+    <color name="vzb_primary_color">@color/desired_modal_bg_color</color>
+    <color name="vzb_secondary_color">@color/desired_modal_bg_border_color</color>
+    <color name="vzb_tertiary_color">@color/desired_title_text_color</color>
+    <color name="vzb_sub_text_color">@color/desired_text_description_color</color>
+
+    <!-- Your app's theme fonts: fonts are not styled here. Here's what to do -->
+    <!--
+        Primary font is used for title texts and secondary font is used for description texts on modals.
+        1. Copy vzb_primary_font.xml, vzb_secondary_font.xml into your res/font folder.
+        2. Modify vzb_primary_font.xml to refer to your app's primary font. Eg., app:font="@font/your_app_primary_font"
+        3. Modify vzb_secondary_font.xml to refer to your app's secondary font. Eg., app:font="@font/your_app_secondary_font"
+    -->
+
+    <!-- Sign in modal styles -->
+
+    <!-- Sign in modal image style
+         Modify the size or color of the image by referring the desired values in the style given below
+    -->
+    <!--<style name="VizbeeHomeSSO.ImageStyle.SignInModal">
+        <item name="android:layout_width">@dimen/sign_in_modal_image_size</item>
+        <item name="android:layout_height">@dimen/sign_in_modal_image_size</item>
+        <item name="android:tint">@color/vzb_tertiary_color</item>
+    </style>-->
+
+    <!-- Sign in modal title style
+        Modify the size, color or font of the title by referring the desired values in the style given below
+    -->
+    <!--<style name="VizbeeHomeSSO.TextAppearance.Title.SignInModal">
+        <item name="android:fontFamily">@font/vzb_primary_font</item>
+        <item name="android:textColor">@color/vzb_tertiary_color</item>
+        <item name="android:textSize">@dimen/vzb_title1_textSize</item>
+    </style>-->
+
+    <!-- Sign in modal description style
+         Modify the size, color or font of the description by referring the desired values in the style given below
+    -->
+    <!--<style name="VizbeeHomeSSO.TextAppearance.Description.SignInModal">
+        <item name="android:fontFamily">@font/vzb_secondary_font</item>
+        <item name="android:textColor">@color/vzb_sub_text_color</item>
+        <item name="android:textSize">@dimen/vzb_body1_textSize</item>
+    </style>-->
+
+    <!-- Sign in modal overall style
+         You can modify
+         (1) icon to text space
+         (2) background
+         (3) title, subtitle, image styles
+         (4) padding and margins
+    -->
+   <!-- <style name="VizbeeHomeSSO.VizbeeSignInModalLayout" parent="Widget.Vizbee">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="vzb_signInModalMarginBottom">@dimen/sign_in_modal_margin_vertical</item>
+        <item name="vzb_signInModalMarginRight">@dimen/sign_in_modal_margin_horizontal</item>
+        <item name="vzb_signInModalPaddingHorizontal">@dimen/sign_in_modal_padding_horizontal</item>
+        <item name="vzb_signInModalPaddingVertical">@dimen/sign_in_modal_padding_vertical</item>
+        <item name="vzb_background">@drawable/sign_in_modal_bg</item>
+        <item name="vzb_titleTextAppearance">@style/VizbeeHomeSSO.TextAppearance.Title.SignInModal</item>
+        <item name="vzb_descriptionTextAppearance">@style/VizbeeHomeSSO.TextAppearance.Description.SignInModal</item>
+        <item name="vzb_imageStyle">@style/VizbeeHomeSSO.ImageStyle.SignInModal</item>
+        <item name="vzb_iconToTitleSpace">@dimen/sign_in_modal_icon_to_text_space</item>
+    </style>-->
+
+</resources>
