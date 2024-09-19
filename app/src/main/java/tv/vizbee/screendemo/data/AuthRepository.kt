@@ -69,11 +69,13 @@ class AuthRepository(
                             else -> RegCodePollResult(RegCodePollResult.Status.IN_PROGRESS)
                         }
 
+                        Log.d(LOG_TAG, "Poll request result: $result")
                         isDone = callback(result)
                     } else {
                         throw Exception("Poll request failed: ${response.code()}")
                     }
                 } catch (e: Exception) {
+                    Log.e(LOG_TAG, "Poll request failed: ${e.message}", e)
                     val errorResult = RegCodePollResult(RegCodePollResult.Status.ERROR, error = e.message)
                     isDone = callback(errorResult)
                 }
@@ -99,6 +101,10 @@ class AuthRepository(
     private fun getDeviceId(): String {
         val deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)
         return "firetv:$deviceId"
+    }
+
+    companion object {
+        private const val LOG_TAG = "AuthRepository"
     }
 }
 

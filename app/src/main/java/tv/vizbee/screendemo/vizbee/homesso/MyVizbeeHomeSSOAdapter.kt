@@ -49,6 +49,7 @@ class MyVizbeeHomeSSOAdapter(
         val SUPPORTED_SIGN_IN_TYPES = listOf(MVPD_SIGN_IN_TYPE)
         private const val SIGN_IN_TIMEOUT_MS = 30000L // 30 seconds
         private const val SIGN_IN_SUCCESS_DELAY = 1000L // 1 second delay
+        private const val LOG_TAG = "MyVizbeeHomeSSOAdapter"
     }
 
     private val authManager = AuthManager(context)
@@ -128,11 +129,7 @@ class MyVizbeeHomeSSOAdapter(
      * @param signInType sign in type that app decides internally and uses consistently. eg., "MVPD"
      */
     fun isSignedIn(signInType: String): Boolean {
-        /* Example Code */
-        /*
-        return appLifecycleAdapter.getAppReadyModel()?.appViewModel?.isUserSignedIn(signInType)
-         */
-        return false
+        return authManager.isSignedIn(signInType)
     }
 
     /**
@@ -153,6 +150,7 @@ class MyVizbeeHomeSSOAdapter(
         callback: VizbeeSignInStatusCallback
     ) {
         if (appLifecycleAdapter.isVideoPlaying()) {
+            Log.d(LOG_TAG, "Skipping the sign in to not interrupt the ongoing video playback")
             return
         }
         isSignInInProgress = true
@@ -196,7 +194,7 @@ class MyVizbeeHomeSSOAdapter(
             try {
                 withTimeoutOrNull(SIGN_IN_TIMEOUT_MS) {
                     val regCode = regCodePoller.requestCode()
-                    Log.d("MyVizbeeHomeSSOAdapter", "Calling progress regCode: $regCode")
+                    Log.d(LOG_TAG, "Calling progress regCode: $regCode")
 
                     withContext(mainScope.coroutineContext) {
                         onProgress(signInType, regCode)
@@ -208,7 +206,6 @@ class MyVizbeeHomeSSOAdapter(
                         override fun onChanged(result: RegCodePollResult) {
                             when (result.status) {
                                 RegCodePollResult.Status.DONE -> {
-                                    authManager.setSignedIn(signInType, true)
                                     signInResult.complete(result)
                                     regCodePoller.regCodeResult.removeObserver(this)
                                 }
@@ -233,13 +230,13 @@ class MyVizbeeHomeSSOAdapter(
                     when (result.status) {
                         RegCodePollResult.Status.DONE -> {
                             withContext(mainScope.coroutineContext) {
-                                Log.d("MyVizbeeHomeSSOAdapter", "Calling success")
+                                Log.d(LOG_TAG, "Calling success")
                                 onSuccess(signInType)
                             }
                         }
                         else -> {
                             withContext(mainScope.coroutineContext) {
-                                Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of ERROR status")
+                                Log.d(LOG_TAG, "Calling failure because of ERROR status")
                                 onFailure(signInType, false)
                             }
                         }
@@ -247,13 +244,13 @@ class MyVizbeeHomeSSOAdapter(
                 } ?: run {
                     // If the result is null, it means we timed out
                     withContext(mainScope.coroutineContext) {
-                        Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of timeout")
+                        Log.d(LOG_TAG, "Calling failure because of timeout")
                         onFailure(signInType, false)
                     }
                 }
             } catch (e: Exception) {
                 withContext(mainScope.coroutineContext) {
-                    Log.d("MyVizbeeHomeSSOAdapter", "Calling failure because of some exception")
+                    Log.d(LOG_TAG, "Calling failure because of some exception")
                     onFailure(signInType, false)
                 }
             } finally {
@@ -267,7 +264,7 @@ class MyVizbeeHomeSSOAdapter(
         SignInCallbackHolder.setListener(object : VizbeeSignInStatusListener {
             override fun onProgress(signInType: String, regCode: String?) {
                 mainScope.launch {
-                    Log.d("MyVizbeeHomeSSOAdapter", "Calling onProgress with regCode: $regCode")
+                    Log.d(LOG_TAG, "Calling onProgress with regCode: $regCode")
                     homeSSOSignInCallback?.onProgress(
                         Progress(
                             signInType,
@@ -281,17 +278,16 @@ class MyVizbeeHomeSSOAdapter(
 
             override fun onSuccess(signInType: String) {
                 backgroundScope.launch {
-                    authManager.setSignedIn(signInType, true)
                     isSignInInProgress = false
                     signInStatusListener?.onSuccess(signInType)
-                    Log.d("MyVizbeeHomeSSOAdapter", "Sign-in successful, delaying callback")
+                    Log.d(LOG_TAG, "Sign-in successful, delaying callback")
 
                     // Delay in the background
                     delay(SIGN_IN_SUCCESS_DELAY)
 
                     // Switch to main thread for UI updates
                     withContext(mainScope.coroutineContext) {
-                        Log.d("MyVizbeeHomeSSOAdapter", "Calling onSuccess after delay")
+                        Log.d(LOG_TAG, "Calling onSuccess after delay")
                         homeSSOSignInCallback?.onSuccess(Success(signInType))
                     }
                 }
@@ -300,7 +296,7 @@ class MyVizbeeHomeSSOAdapter(
             override fun onFailure(signInType: String, isCancelled: Boolean) {
                 mainScope.launch {
                     isSignInInProgress = false
-                    Log.d("MyVizbeeHomeSSOAdapter", "Calling onFailure")
+                    Log.d(LOG_TAG, "Calling onFailure")
                     homeSSOSignInCallback?.onFailure(Failure(signInType, "", isCancelled, null))
                 }
             }
