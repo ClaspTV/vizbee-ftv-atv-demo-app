@@ -4,7 +4,7 @@ Vizbee Fire TV and Android TV Demo App demonstrates how to integrate Vizbee cast
 # Integration Steps for your Fire TV and Android TV mobile app
 Look for the block comments with text "[BEGIN] Vizbee Integration" and "[END] Vizbee Integration" in the code for an easy understanding of the integration.
 
-## SDK Initialisation
+## Setup
 ### Build Setup
 1. Add the Vizbee repository to your Android mobile app’s root [settings.gradle](settings.gradle).
 2. Add Vizbee SDK dependency to your app module's [build.gradle](/app/build.gradle).
@@ -23,10 +23,31 @@ Look for the block comments with text "[BEGIN] Vizbee Integration" and "[END] Vi
 3. Create and implement a [ReceiverOptionsProvider](/app/src/androidtv/java/tv/vizbee/screendemo/MyAppReceiverOptionsProvider.kt) to provide CastReceiverOptions and specify this in your AndroidManifest file.
 
 ### Code Setup
-1. Copy the files under [vizbee package](app/src/main/java/tv/vizbee/screendemo/vizbee) to your app under an appropriate package.
+Copy the files under [vizbee package](app/src/main/java/tv/vizbee/screendemo/vizbee) to your app under an appropriate package. The following are the key components of above files
 
-### SDK Initialisation
-1. In your [application](app/src/main/java/tv/vizbee/screendemo/VizbeeTVDemoApplication.java) class, initialise Vizbee SDK via [VizbeeWrapper](app/src/main/java/tv/vizbee/screendemo/vizbee/VizbeeWrapper.kt) helper file.
+#### VizbeeWrapper
+The `VizbeeWrapper.kt` acts as the primary interface for integrating Vizbee into your app. It manages SDK initialization and offers methods to seamlessly handle all aspects of Vizbee’s integration.
+
+#### App Lifecycle Management
+The `applifecycle` package includes files responsible for managing the app’s readiness for Vizbee deep linking and other integration features:
+
+1. `AppReadyModel.kt:` Encapsulates objects necessary for managing deep linking and sign-in requests.
+2. `VizbeeAppLifecycleAdapter.kt:` Provides an abstraction for managing the AppReadyModel lifecycle.
+3. `MyVizbeeAppLifecycleAdapter.kt:` Implements `VizbeeAppLifecycleAdapter`, customized for your app.
+
+#### Video Handling
+The video package is divided into two sub-packages:
+
+##### Deeplink
+1. `MyVizbeeAppAdapter.kt:` Implements VizbeeAppAdapter to handle "start or deeplink to a new video" commands sent by your mobile app.
+2. `MyVizbeeDeeplinkManager.kt:` Manages deep links and their potential failures, enabling you to customize the deeplinkVideo() method according to your app’s specific requirements.
+
+##### Playback
+1. `MyVizbeePlayerAdapterHandler.kt:` A utility class for interacting with the Vizbee API, allowing you to set and reset the player adapter that shares video playback details with the mobile application.
+2. `MyVizbeeMediaSessionCompatPlayerAdapter.kt:` Bridges your app’s player with the Vizbee SDK, managing player commands and status updates.
+
+## SDK Initialisation
+1. In your [application](app/src/main/java/tv/vizbee/screendemo/VizbeeTVDemoApplication.java) class, initialise Vizbee SDK via [VizbeeWrapper](app/src/main/java/tv/vizbee/screendemo/vizbee/VizbeeWrapper.kt) utility file.
 
 ## App Adapter
 1. Use the onStart method of [MyVizbeeAppAdapter](app/src/main/java/tv/vizbee/screendemo/vizbee/video/deeplink/MyVizbeeAppAdapter.kt) file to see the deep-linked content and add logging, which is invoked first when mobile/sender casts content.
