@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
@@ -41,6 +42,7 @@ class MainActivity : FragmentActivity() {
         // ---------------------------
 
         setListeners()
+        setupMenuButton()
     }
 
     private fun setListeners() {
@@ -58,6 +60,17 @@ class MainActivity : FragmentActivity() {
 
         binding.mainElephantsDreamImageView.setOnClickListener {
             launchExoplayerActivity(VideoCatalog.ELEPHANTS_DREAM)
+        }
+    }
+
+    private fun setupMenuButton() {
+        binding.menuButton.setOnClickListener { view ->
+            val popupMenu = PopupMenu(this, view)
+            menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { item ->
+                onOptionsItemSelected(item)
+            }
+            popupMenu.show()
         }
     }
 
