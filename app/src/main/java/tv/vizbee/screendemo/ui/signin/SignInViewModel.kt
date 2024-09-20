@@ -30,6 +30,7 @@ class SignInViewModel(
     val signInState: LiveData<SignInState> = _signInState
 
     private var isCheckDoneObserver: Observer<Boolean>? = null
+    private var regCodeObserver: Observer<String>? = null
 
     init {
         observeRegCodePoller()
@@ -61,16 +62,34 @@ class SignInViewModel(
 
     fun startPolling() {
         _signInState.value = SignInState.Loading
-        regCodePoller.startPoll(regCode.value ?: "")
+        val currentCode = regCode.value
+        Log.d(LOG_TAG, "Starting polling with code: $currentCode")
+        if (currentCode != null) {
+            // If we already have a code, start polling immediately
+            regCodePoller.startPoll(currentCode)
+        } else {
+            Log.d(LOG_TAG, "Code is null, waiting for it to be set")
+            // If we don't have a code yet, observe and wait for it
+            regCodeObserver = Observer { code ->
+                Log.d(LOG_TAG, "Code is now: $code")
+                if (code != null) {
+                    regCodePoller.startPoll(code)
+                    regCode.removeObserver(regCodeObserver!!)
+                }
+            }
+            regCode.observeForever(regCodeObserver!!)
+        }
     }
 
     fun stopPolling() {
         regCodePoller.stopPoll()
+        regCodeObserver?.let { regCode.removeObserver(it) }
     }
 
     override fun onCleared() {
         super.onCleared()
         isCheckDoneObserver?.let { regCodePoller.isCheckDone.removeObserver(it) }
+        regCodeObserver?.let { regCode.removeObserver(it) }
     }
 
     companion object {

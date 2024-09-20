@@ -76,6 +76,7 @@ class VizbeeWrapper {
 
         // Initialise Vizbee Continuity SDK
         vizbeeAdapter.context = app
+        Vizbee.getInstance().enableVerboseLogging()
         Vizbee.getInstance().initialize(app, getVizbeeAppId(app), vizbeeAdapter)
 
         // Initialise Vizbee HomeSSO SDK
