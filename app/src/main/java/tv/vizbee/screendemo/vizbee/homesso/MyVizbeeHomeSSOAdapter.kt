@@ -252,6 +252,7 @@ class MyVizbeeHomeSSOAdapter(
     }
 
     override fun onProgress(signInType: String, regCode: String?) {
+        Log.d(LOG_TAG, "Sign-in progress, regCode: $regCode")
         mainScope.launch {
             homeSSOSignInCallback?.onProgress(
                 Progress(

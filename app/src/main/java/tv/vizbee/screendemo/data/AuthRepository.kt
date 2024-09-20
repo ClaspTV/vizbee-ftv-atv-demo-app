@@ -1,6 +1,7 @@
 package tv.vizbee.screendemo.data
 
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import okhttp3.MediaType.Companion.toMediaType
@@ -104,7 +105,14 @@ class AuthRepository(
 
     private fun getDeviceId(): String {
         val deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)
-        return "firetv:$deviceId"
+        val prefix = if (isFireTv(context)) "firetv" else "androidtv"
+        Log.d(LOG_TAG, "prefix = $prefix deviceId = $deviceId")
+        return "$prefix:$deviceId"
+    }
+
+    private fun isFireTv(context: Context?): Boolean {
+        return Build.MODEL?.startsWith("AFT") == true ||
+                context?.packageManager?.hasSystemFeature("amazon.hardware.fire_tv") == true
     }
 
     companion object {
