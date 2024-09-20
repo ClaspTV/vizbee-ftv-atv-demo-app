@@ -53,13 +53,9 @@ If you have the legacy integration of the Vizbee Continuity SDK and are now upgr
 3. `Adapter replacement:` Replace your existing MyVizbeeAppAdapter with the newer version provided in the HomeSSO template files.
 
    * The new adapter includes additional checks using MyVizbeeDeeplinkSignallingManager.
-   
+     
+For more details on handling the handling the Start Video during Sign In progress, refer to the guide.   
 These changes ensure a smooth transition to the HomeSSO SDK while maintaining compatibility with your existing integration.
-
-#### Delay Start Video Request
-If the start video request is received during the sign-in process, the receiver should delay handling the video request until the sign-in is complete. We’ve added an initial delay, but if your app requires more time for the receiver to sign in while the mobile is already signed in, consider extending the delay accordingly.   
-
-For more details on handling the handling the Start Video during Sign In progress, refer to the guide.
 
 ## Documentation
 Please refer to the following documentation for more details:
