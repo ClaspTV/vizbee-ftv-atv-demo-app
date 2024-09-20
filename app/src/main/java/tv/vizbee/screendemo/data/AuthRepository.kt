@@ -40,6 +40,7 @@ class AuthRepository(
         callback: (RegCodePollResult) -> Boolean,
         pollingInterval: Long? = null
     ) {
+        Log.d(LOG_TAG, "Polling for reg code: $regCode status with interval: $pollingInterval")
         withContext(Dispatchers.IO) {
             var isDone = false
             while (!isDone) {
@@ -52,7 +53,9 @@ class AuthRepository(
                     val mediaType = "text/plain".toMediaType()
                     val requestBody = jsonBody.toRequestBody(mediaType)
 
+                    Log.d(LOG_TAG, "Poll request body: $jsonBody")
                     val response = apiService.pollAccountRegCodeStatus(requestBody)
+                    Log.d(LOG_TAG, "Poll response: $response")
                     if (response.isSuccessful) {
                         val responseBody = response.body()?.string()
                         val jsonResponse = JSONObject(responseBody)
@@ -83,6 +86,7 @@ class AuthRepository(
                 if (!isDone) {
                     delay(pollingInterval ?: 2000) // Default to 2 seconds if no interval provided
                 }
+                Log.d(LOG_TAG, "Polling for reg code loop: isDone = $isDone")
             }
         }
     }

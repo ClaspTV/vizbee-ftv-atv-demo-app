@@ -190,75 +190,43 @@ class MyVizbeeHomeSSOAdapter(
     }
 
     private fun startBackgroundSignIn(signInType: String) {
-        backgroundScope.launch {
+        mainScope.launch {
             try {
-                withTimeoutOrNull(SIGN_IN_TIMEOUT_MS) {
-                    val regCode = regCodePoller.requestCode()
-                    Log.d(LOG_TAG, "Calling progress regCode: $regCode")
+                val regCode = regCodePoller.requestCode()
+                onProgress(signInType, regCode)
 
-                    withContext(mainScope.coroutineContext) {
-                        onProgress(signInType, regCode)
+                regCodePoller.startPoll(regCode)
+
+                var observer: Observer<Boolean>? = null
+                val signInJob = CompletableDeferred<Unit>()
+
+                observer = Observer<Boolean> { isDone ->
+                    if (isDone) {
+                        onSuccess(signInType)
+                        signInJob.complete(Unit)
+                    }
+                }
+
+                regCodePoller.isCheckDone.observeForever(observer)
+
+                try {
+                    withTimeoutOrNull(SIGN_IN_TIMEOUT_MS) {
+                        signInJob.await()
                     }
 
-                    val signInResult = CompletableDeferred<RegCodePollResult>()
-
-                    val observer = object : Observer<RegCodePollResult> {
-                        override fun onChanged(result: RegCodePollResult) {
-                            when (result.status) {
-                                RegCodePollResult.Status.DONE -> {
-                                    signInResult.complete(result)
-                                    regCodePoller.regCodeResult.removeObserver(this)
-                                }
-                                RegCodePollResult.Status.ERROR -> {
-                                    signInResult.complete(result)
-                                    regCodePoller.regCodeResult.removeObserver(this)
-                                }
-                                else -> { /* Do nothing for IN_PROGRESS and NOT_FOUND */ }
-                            }
-                        }
-                    }
-
-                    withContext(mainScope.coroutineContext) {
-                        regCodePoller.regCodeResult.observeForever(observer)
-                    }
-                    regCodePoller.startPoll()
-
-                    // Wait for the sign-in result or timeout
-                    signInResult.await()
-                }?.let { result ->
-                    // If we got a result (not null), process it
-                    when (result.status) {
-                        RegCodePollResult.Status.DONE -> {
-                            withContext(mainScope.coroutineContext) {
-                                Log.d(LOG_TAG, "Calling success")
-                                onSuccess(signInType)
-                            }
-                        }
-                        else -> {
-                            withContext(mainScope.coroutineContext) {
-                                Log.d(LOG_TAG, "Calling failure because of ERROR status")
-                                onFailure(signInType, false)
-                            }
-                        }
-                    }
-                } ?: run {
-                    // If the result is null, it means we timed out
-                    withContext(mainScope.coroutineContext) {
-                        Log.d(LOG_TAG, "Calling failure because of timeout")
+                    if (!signInJob.isCompleted) {
                         onFailure(signInType, false)
                     }
+                } finally {
+                    observer?.let { regCodePoller.isCheckDone.removeObserver(it) }
                 }
             } catch (e: Exception) {
-                withContext(mainScope.coroutineContext) {
-                    Log.d(LOG_TAG, "Calling failure because of some exception")
-                    onFailure(signInType, false)
-                }
+                onFailure(signInType, false)
             } finally {
-                regCodePoller.stopPoll() // Ensure we stop polling in all cases
+                regCodePoller.stopPoll()
             }
         }
     }
-
 
     private fun startForegroundSignIn(signInType: String) {
         SignInCallbackHolder.setListener(object : VizbeeSignInStatusListener {

@@ -1,9 +1,11 @@
 package tv.vizbee.screendemo.ui.signin
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -27,32 +29,20 @@ class SignInViewModel(
     private val _signInState = MutableLiveData<SignInState>()
     val signInState: LiveData<SignInState> = _signInState
 
+    private var isCheckDoneObserver: Observer<Boolean>? = null
+
     init {
         observeRegCodePoller()
     }
 
     private fun observeRegCodePoller() {
-        regCodePoller.regCodeResult.observeForever { result ->
-            when (result.status) {
-                RegCodePollResult.Status.DONE -> {
-                    _signInState.value = SignInState.Success
-                    SignInCallbackHolder.getListener()?.onSuccess(signInType)
-                }
-                RegCodePollResult.Status.ERROR -> {
-                    val errorMessage = result.error ?: "Unknown error occurred"
-                    _signInState.value = SignInState.Error(errorMessage)
-                    SignInCallbackHolder.getListener()?.onFailure(signInType, false)
-                }
-                RegCodePollResult.Status.IN_PROGRESS -> _signInState.value = SignInState.Loading
-                RegCodePollResult.Status.NOT_FOUND -> _signInState.value = SignInState.Loading
-            }
-        }
-
-        regCodePoller.isCheckDone.observeForever { isDone ->
+        isCheckDoneObserver = Observer { isDone ->
             if (isDone) {
-                stopPolling()
+                _signInState.value = SignInState.Success
+                SignInCallbackHolder.getListener()?.onSuccess(signInType)
             }
         }
+        regCodePoller.isCheckDone.observeForever(isCheckDoneObserver!!)
     }
 
     fun requestCode() {
@@ -62,14 +52,16 @@ class SignInViewModel(
                 val code = regCodePoller.requestCode()
                 SignInCallbackHolder.getListener()?.onProgress(signInType, code)
             } catch (e: Exception) {
+                Log.e(LOG_TAG, "Error requesting code: ${e.message}", e)
                 _signInState.value = SignInState.Error(e.message ?: "Unknown error occurred")
                 SignInCallbackHolder.getListener()?.onFailure(signInType, false)
             }
         }
     }
+
     fun startPolling() {
         _signInState.value = SignInState.Loading
-        regCodePoller.startPoll()
+        regCodePoller.startPoll(regCode.value ?: "")
     }
 
     fun stopPolling() {
@@ -78,8 +70,11 @@ class SignInViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        regCodePoller.regCodeResult.removeObserver { }
-        regCodePoller.isCheckDone.removeObserver { }
+        isCheckDoneObserver?.let { regCodePoller.isCheckDone.removeObserver(it) }
+    }
+
+    companion object {
+        private const val LOG_TAG = "SignInViewModel"
     }
 }
 

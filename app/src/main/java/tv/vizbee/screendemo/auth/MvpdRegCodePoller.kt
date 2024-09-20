@@ -7,7 +7,7 @@ import tv.vizbee.screendemo.data.RegCode
 class MvpdRegCodePoller(
     scope: CoroutineScope,
     private val authRepository: AuthRepository,
-    private val pollingInterval: Long = 2000 // Default to 2 seconds
+    private val pollingInterval: Long = 2000
 ) : RegCodePoller(scope) {
 
     override suspend fun doRequestCode(): RegCode {
@@ -15,20 +15,16 @@ class MvpdRegCodePoller(
     }
 
     override suspend fun startRegCodeProcess(regCode: String) {
-        isPollDone = false
         pollRegCode(regCode)
     }
 
     override suspend fun pollRegCode(regCode: String) {
-        if (!isPollDone) {
-            authRepository.pollForRegCodeStatus(
-                regCode,
-                { result ->
-                    isPollDone = onRegCodePollResult(result)
-                    isPollDone
-                },
-                pollingInterval
-            )
-        }
+        authRepository.pollForRegCodeStatus(
+            regCode,
+            { result ->
+                onRegCodePollResult(result)
+            },
+            pollingInterval
+        )
     }
 }
