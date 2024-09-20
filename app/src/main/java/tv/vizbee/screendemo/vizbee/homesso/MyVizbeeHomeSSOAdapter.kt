@@ -21,7 +21,8 @@ import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Success
 import tv.vizbee.screendemo.auth.AuthManager
 import tv.vizbee.screendemo.auth.MvpdRegCodePoller
 import tv.vizbee.screendemo.data.AuthRepository
-import tv.vizbee.screendemo.data.RegCodePollResult
+
+import tv.vizbee.screendemo.storage.SharedPreferencesManager
 import tv.vizbee.screendemo.ui.signin.SignInActivity
 import tv.vizbee.screendemo.vizbee.applifecycle.AppReadyModel
 import tv.vizbee.screendemo.vizbee.applifecycle.VizbeeAppLifecycleAdapter
@@ -276,7 +277,8 @@ class MyVizbeeHomeSSOAdapter(
             }
 
             Log.d(LOG_TAG, "Calling onSuccess after delay")
-            homeSSOSignInCallback?.onSuccess(Success(signInType))
+            val email = SharedPreferencesManager(context).getStringValue("email")
+            homeSSOSignInCallback?.onSuccess(Success(signInType, email))
         }
     }
 
