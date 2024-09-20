@@ -38,8 +38,10 @@ To make the Vizbee integration easier, we have separated out the template files 
 2. `onStartSignIn(senderSignInInfo, callback):` The SDK invokes this method to initiate sign in process on the receiver if not signed in already. From here, start initialising the sign in process on app side.
 3. Update the corresponding callback methods `onProgress(signInType, regCode)`, `onSuccess(signInType)` and `onFailure(signInType, isCancelled)` in MyVizbeeHomeSSOAdapter class to manage the sign-in process updates by the SDK.
 
-## Handle Start Video during Sign-In progress
-When handling both the start video request and sign-in process in parallel, ensure that the sign-in is completed first before processing the start video request.
+For more details on handling the sign in request, refer to the guide.
+
+## Handle Start Video during Sign In progress
+When handling both the start video request and sign in process in parallel, ensure that the sign-in is completed first before processing the start video request.
 
 ### Migrating from legacy Vizbee Continuity integration to HomeSSO SDK
 If you have the legacy integration of the Vizbee Continuity SDK and are now upgrading to the HomeSSO SDK, follow these steps:
@@ -54,8 +56,10 @@ If you have the legacy integration of the Vizbee Continuity SDK and are now upgr
    
 These changes ensure a smooth transition to the HomeSSO SDK while maintaining compatibility with your existing integration.
 
-### Delay Start Video Request
+#### Delay Start Video Request
 If the start video request is received during the sign-in process, the receiver should delay handling the video request until the sign-in is complete. We’ve added an initial delay, but if your app requires more time for the receiver to sign in while the mobile is already signed in, consider extending the delay accordingly.   
+
+For more details on handling the handling the Start Video during Sign In progress, refer to the guide.
 
 ## Documentation
 Please refer to the following documentation for more details:
