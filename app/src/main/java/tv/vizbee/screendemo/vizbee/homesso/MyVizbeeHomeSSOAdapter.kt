@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -231,42 +232,15 @@ class MyVizbeeHomeSSOAdapter(
     private fun startForegroundSignIn(signInType: String) {
         SignInCallbackHolder.setListener(object : VizbeeSignInStatusListener {
             override fun onProgress(signInType: String, regCode: String?) {
-                mainScope.launch {
-                    Log.d(LOG_TAG, "Calling onProgress with regCode: $regCode")
-                    homeSSOSignInCallback?.onProgress(
-                        Progress(
-                            signInType,
-                            JSONObject().apply {
-                                put("regcode", regCode)
-                            }
-                        )
-                    )
-                }
+                this@MyVizbeeHomeSSOAdapter.onProgress(signInType, regCode)
             }
 
             override fun onSuccess(signInType: String) {
-                backgroundScope.launch {
-                    isSignInInProgress = false
-                    signInStatusListener?.onSuccess(signInType)
-                    Log.d(LOG_TAG, "Sign-in successful, delaying callback")
-
-                    // Delay in the background
-                    delay(SIGN_IN_SUCCESS_DELAY)
-
-                    // Switch to main thread for UI updates
-                    withContext(mainScope.coroutineContext) {
-                        Log.d(LOG_TAG, "Calling onSuccess after delay")
-                        homeSSOSignInCallback?.onSuccess(Success(signInType))
-                    }
-                }
+                this@MyVizbeeHomeSSOAdapter.onSuccess(signInType)
             }
 
             override fun onFailure(signInType: String, isCancelled: Boolean) {
-                mainScope.launch {
-                    isSignInInProgress = false
-                    Log.d(LOG_TAG, "Calling onFailure")
-                    homeSSOSignInCallback?.onFailure(Failure(signInType, "", isCancelled, null))
-                }
+                this@MyVizbeeHomeSSOAdapter.onFailure(signInType, isCancelled)
             }
         })
 
@@ -293,8 +267,15 @@ class MyVizbeeHomeSSOAdapter(
     override fun onSuccess(signInType: String) {
         mainScope.launch {
             isSignInInProgress = false
-            homeSSOSignInCallback?.onSuccess(Success(signInType))
             signInStatusListener?.onSuccess(signInType)
+            Log.d(LOG_TAG, "Sign-in successful, delaying callback")
+
+            withContext(Dispatchers.Default) {
+                delay(SIGN_IN_SUCCESS_DELAY)
+            }
+
+            Log.d(LOG_TAG, "Calling onSuccess after delay")
+            homeSSOSignInCallback?.onSuccess(Success(signInType))
         }
     }
 
