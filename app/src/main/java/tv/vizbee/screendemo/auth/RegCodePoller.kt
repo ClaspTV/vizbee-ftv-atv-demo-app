@@ -1,12 +1,11 @@
 package tv.vizbee.screendemo.auth
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import tv.vizbee.screendemo.data.RegCode
 import tv.vizbee.screendemo.data.RegCodePollResult
 
@@ -16,41 +15,33 @@ abstract class RegCodePoller(private val scope: CoroutineScope) {
     private val _regCode = MutableLiveData<String>()
     val regCode: LiveData<String> = _regCode
 
-    private val _regCodeResult = MutableLiveData<RegCodePollResult>()
-    val regCodeResult: LiveData<RegCodePollResult> = _regCodeResult
-
     private val _isCheckDone = MutableLiveData(false)
     val isCheckDone: LiveData<Boolean> = _isCheckDone
 
-    protected var isPollDone = false
-
     suspend fun requestCode(): String {
-        isPollDone = false
         setIsCheckDone(false)
-
         return try {
-            val regCode = doRequestCode()
-            setRegCode(regCode.code)
-            regCode.code
+            val code = doRequestCode().code
+            setRegCode(code)
+            code
         } catch (exception: Exception) {
-            // Handle exception
+            Log.e(LOG_TAG, "Error requesting code: ${exception.message}")
             throw exception
         }
     }
 
-    fun startPoll() {
+    fun startPoll(regCode: String) {
         stopPoll()
         pollJob = scope.launch {
-            val code = regCode.value ?: run {
-                requestCode()
-            }
-            startRegCodeProcess(code)
+            startRegCodeProcess(regCode)
+            setIsCheckDone(true)
         }
     }
 
     fun stopPoll() {
         pollJob?.cancel()
         pollJob = null
+        setIsCheckDone(false)
     }
 
     protected abstract suspend fun doRequestCode(): RegCode
@@ -58,33 +49,18 @@ abstract class RegCodePoller(private val scope: CoroutineScope) {
     protected abstract suspend fun pollRegCode(regCode: String)
 
     protected fun onRegCodePollResult(result: RegCodePollResult): Boolean {
-        setRegCodeResult(result)
-        when (result.status) {
-            RegCodePollResult.Status.DONE, RegCodePollResult.Status.ERROR -> setIsCheckDone(true)
-            else -> {} // Do nothing for other states
-        }
-        return isCheckDone.value == true
+        return result.status == RegCodePollResult.Status.DONE
     }
 
-    private suspend fun setRegCode(code: String) {
-        withContext(Dispatchers.Main) {
-            _regCode.value = code
-        }
-    }
-
-    private fun setRegCodeResult(result: RegCodePollResult) {
-        scope.launch {
-            withContext(Dispatchers.Main) {
-                _regCodeResult.value = result
-            }
-        }
+    private fun setRegCode(code: String) {
+        _regCode.postValue(code)
     }
 
     private fun setIsCheckDone(isDone: Boolean) {
-        scope.launch {
-            withContext(Dispatchers.Main) {
-                _isCheckDone.value = isDone
-            }
-        }
+        _isCheckDone.postValue(isDone)
+    }
+
+    companion object {
+        private const val LOG_TAG = "RegCodePoller"
     }
 }
