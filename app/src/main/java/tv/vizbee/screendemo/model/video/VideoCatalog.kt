@@ -27,8 +27,8 @@ object VideoCatalog {
         Video(
             title = "Akamai Live Stream",
             guid = AKAMAI_LIVE_STREAM,
-            videoURL = "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
-            imageUrl = "https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=927&q=80",
+            videoURL = "https://livecmaftest1.akamaized.net/cmaf/live/2099281/abr6s/master.m3u8",
+            imageUrl = "https://vizbee.s3.amazonaws.com/images/demoapp/akamai-live.jpg",
             imageRes = R.drawable.akamailive_720x1024,
             isLive = true
         ),
