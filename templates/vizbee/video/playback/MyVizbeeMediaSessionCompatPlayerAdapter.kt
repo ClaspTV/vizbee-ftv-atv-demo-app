@@ -23,6 +23,11 @@ import tv.vizbee.screen.api.messages.VideoTrackInfo
  * @property mediaSessionCompat app's media session object
  * @property playerListener an implementation of the PlayerListener interface for this object to query
  * about player status and pass commands to the player.
+ *
+ * Note:
+ * If your app has a standard MediaSession/MediaSessionCompat tied to your video player, use this adapter to create
+ * the Vizbee player adapter. If your app has a non-standard interface to your video player, we recommned using
+ * the MyVizbeePlayerAdapter to create a customized Vizbee player adapter.
  */
 @SuppressLint("LongLogTag")
 class MyVizbeeMediaSessionCompatPlayerAdapter(
@@ -91,6 +96,7 @@ class MyVizbeeMediaSessionCompatPlayerAdapter(
                 playerListener.isContentPlaying() -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PLAYING
                 }
+
                 else -> {
                     videoStatus.mPlaybackStatus = PlaybackStatus.PAUSED_BY_USER
                 }
