@@ -9,6 +9,10 @@ import tv.vizbee.screen.api.messages.VideoStatus
 import tv.vizbee.screen.api.messages.VideoTrackInfo
 
 /**
+ * NOTE:
+ * IF YOUR APP HAS A STANDARD MEDIASESSION/MEDIASESSIONCOMPAT TIED TO YOUR VIDEO PLAYER, USE THIS ADAPTER TO CREATE
+ * THE VIZBEE PLAYER ADAPTER. AND REMOVE THE MYVIZBEEPLAYERADAPTER FROM THE COPIED TEMPLATES.
+ *
  * #VizbeeGuide Do not modify this file.
  * Note: If your player doesn't expose ad duration and position, set them to -1 for a graceful handling.
  *
@@ -23,11 +27,6 @@ import tv.vizbee.screen.api.messages.VideoTrackInfo
  * @property mediaSessionCompat app's media session object
  * @property playerListener an implementation of the PlayerListener interface for this object to query
  * about player status and pass commands to the player.
- *
- * Note:
- * If your app has a standard MediaSession/MediaSessionCompat tied to your video player, use this adapter to create
- * the Vizbee player adapter. If your app has a non-standard interface to your video player, we recommned using
- * the MyVizbeePlayerAdapter to create a customized Vizbee player adapter.
  */
 @SuppressLint("LongLogTag")
 class MyVizbeeMediaSessionCompatPlayerAdapter(

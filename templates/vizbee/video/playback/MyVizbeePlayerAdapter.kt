@@ -7,17 +7,16 @@ import tv.vizbee.screen.api.messages.VideoStatus
 import android.util.Log
 
 /**
+ * NOTE:
+ * IF YOUR APP HAS A NON-STANDARD INTERFACE TO YOUR VIDEO PLAYER, USE THIS ADAPTER TO CREATE A CUSTOMIZED VIZBEE PLAYER ADAPTER.
+ * REMOVE THE MYVIZBEEMEDIASESSIONCOMPATPLAYERADAPTER FROM THE COPIED TEMPLATES.
+ *
  * This adapter class is a bridge between the app's player and the Vizbee SDK. It handles the player
  * commands sent by mobile via the SDK by passing them to the player. It also gets video status from
  * the player and passes it over to the Vizbee SDK so that the mobile player card is updated with
  * the latest status of the video.
  *
  * @property contentPlayer An instance of the current video player handler/manager.
- *
- * Note:
- * If your app has a non-standard interface to your video player, use this adapter to create a customized Vizbee player
- * adapter. If your app has a standard MediaSession/MediaSessionCompat tied to your video player, we recommend using
- * the MyVizbeeMediaSessionCompatPlayerAdapter to create the Vizbee player adapter.
  */
 class MyVizbeePlayerAdapter : VizbeePlayerAdapter() {
 
