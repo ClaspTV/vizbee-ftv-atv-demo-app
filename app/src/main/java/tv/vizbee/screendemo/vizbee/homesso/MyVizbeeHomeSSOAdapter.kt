@@ -15,6 +15,7 @@ import org.json.JSONObject
 import tv.vizbee.screen.homesso.IVizbeeHomeSSOAdapter
 import tv.vizbee.screen.homesso.VizbeeSignInStatusCallback
 import tv.vizbee.screen.homesso.model.VizbeeSenderSignInInfo
+import tv.vizbee.screen.homesso.model.VizbeeSignInInfo
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Failure
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Progress
 import tv.vizbee.screen.homesso.model.VizbeeSignInStatus.Success
@@ -65,7 +66,7 @@ class MyVizbeeHomeSSOAdapter(
     var signInStatusListener: VizbeeSignInStatusListener? = null
 
     // HomeSSO's isSignedIn query callbacks map
-    private val pendingIsSignedInCallbacks = mutableMapOf<String, ICommandCallback<Boolean>>()
+    private val pendingGetSignInInfoCallbacks = arrayListOf<ICommandCallback<List<VizbeeSignInInfo>>>()
 
     // HomeSSO's startSignIn request callback
     private var homeSSOSignInCallback: VizbeeSignInStatusCallback? = null
@@ -78,11 +79,11 @@ class MyVizbeeHomeSSOAdapter(
             VizbeeAppLifecycleAdapter.AppLifecycleListener {
 
             override fun onAppReady(appReadyModel: AppReadyModel) {
-                // 1. Fulfil any pending isSignedIn requests
-                pendingIsSignedInCallbacks.forEach { (signInType, callback) ->
-                    callback.onSuccess(isSignedIn(signInType))
+                // 1. Fulfil any pending getSignInInfo requests
+                pendingGetSignInInfoCallbacks.forEach { callback ->
+                    sendSignInInfo(callback)
                 }
-                pendingIsSignedInCallbacks.clear()
+                pendingGetSignInInfoCallbacks.clear()
 
                 // 2. Inform listeners waiting for HomeSSO readiness
                 isHomeSSOReady = true
@@ -106,22 +107,33 @@ class MyVizbeeHomeSSOAdapter(
 
     // region APIs Implementation
 
-    /**
-     * This method lets the HomeSSO SDK know whether the TV app is already signed in via given
-     * sign in method or not.
-     * @param signInType sign in method
-     * @param callback callback via which the app tells the SDK about its sign in status
-     */
-    override fun isSignedIn(signInType: String, callback: ICommandCallback<Boolean>) {
-        if (signInType !in SUPPORTED_SIGN_IN_TYPES) {
-            return
-        }
-
+    override fun getSignInInfo(callback: ICommandCallback<List<VizbeeSignInInfo>>) {
         if (appLifecycleAdapter.isAppReady()) {
-            callback.onSuccess(isSignedIn(signInType))
+            sendSignInInfo(callback)
         } else {
-            pendingIsSignedInCallbacks[signInType] = callback
+            pendingGetSignInInfoCallbacks.add(callback)
         }
+    }
+
+    private fun sendSignInInfo(callback: ICommandCallback<List<VizbeeSignInInfo>>) {
+        val signedIn = isSignedIn(MVPD_SIGN_IN_TYPE)
+        val email = SharedPreferencesManager(context).getStringValue("email")
+        val mvpdSignInInfo = VizbeeSignInInfo(
+            MVPD_SIGN_IN_TYPE,
+            signedIn,
+            userLogin = email,
+            // userName = "fill with the user name",
+            // userSubscriptionType = "premium/free",
+            // userSubscriptionValue = "$ value such as $19",
+            // userSubscriptionRenewalType = "monthly/yearly",
+            // additionally, pass any custom info as JSON object
+            // userAdditionalInfo = JSONObject().apply {
+            // put("customKey1", "customValue1")
+            // put("customKey2", "customValue2")
+            // }
+        )
+        // if your app has additional sign in types, make a VizbeeSignInInfo object for each type and append to the list
+        callback.onSuccess(listOf(mvpdSignInInfo))
     }
 
     /**
