@@ -65,7 +65,7 @@ class MyVizbeeHomeSSOAdapter(
     var isSignInInProgress = false
     var signInStatusListener: VizbeeSignInStatusListener? = null
 
-    // HomeSSO's isSignedIn query callbacks map
+    // HomeSSO's getSignInInfo query callbacks map
     private val pendingGetSignInInfoCallbacks = arrayListOf<ICommandCallback<List<VizbeeSignInInfo>>>()
 
     // HomeSSO's startSignIn request callback
