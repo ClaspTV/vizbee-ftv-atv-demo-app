@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import tv.vizbee.screendemo.CastUtil.Companion.handleIntentByCastReceiver
 import tv.vizbee.screendemo.databinding.ActivityMainBinding
+import tv.vizbee.screendemo.model.video.Video
 import tv.vizbee.screendemo.model.video.VideoCatalog
 import tv.vizbee.screendemo.ui.video.ExoPlayerActivity
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
@@ -112,8 +113,10 @@ class MainActivity : FragmentActivity() {
     private fun launchExoplayerActivity(guid: String, position: Long = 0) {
         var video = VideoCatalog.all[guid]
         if (null == video) {
-            displayPlayError(guid)
-            video = VideoCatalog.all[VideoCatalog.ELEPHANTS_DREAM]
+
+            Log.d(TAG, "Video with GUID: $guid is not supported by this demo app, trying mobile deeplink")
+            tryMobileDeeplink()
+            return
         }
 
         Log.d(TAG, String.format("Launching ExoPlayerActivity with video: %s @ %d", video?.title, position))
@@ -123,6 +126,33 @@ class MainActivity : FragmentActivity() {
                 this.putExtra("position", position)
             }
         )
+    }
+
+    private fun tryMobileDeeplink() {
+
+        val extras = intent.extras
+        if (null != extras) {
+
+            val deeplink = extras.getString("deeplink") ?: ""
+            val guid = extras.getString("guid") ?: ""
+            if (deeplink.isNotEmpty()) {
+
+                val title = extras.getString("title") ?: ""
+                val imageUrl = extras.getString("imageUrl") ?: ""
+                val isLive = extras.getBoolean("isLive")
+                val video = Video(title, guid, deeplink, imageUrl, 0, isLive)
+
+                Log.d(TAG, String.format("MobileDeeplink: Launching ExoPlayerActivity with video: %s", video))
+                startActivity(
+                    Intent(this, ExoPlayerActivity::class.java).apply {
+                        this.putExtra("video", video)
+                        this.putExtra("position", 0)
+                    }
+                )
+            } else {
+                displayPlayError(guid)
+            }
+        }
     }
 
     private fun displayPlayError(guid: String) {

@@ -11,7 +11,7 @@
     <!--  endregion  -->
 
     <!--  region init  -->
-    <string name="vizbee_app_id">vzb2000001</string>
+    <string name="vizbee_app_id">vzb2000002</string>
     <!--  endregion  -->
 
     <string name="dummy_button">Dummy Button</string>

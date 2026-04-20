@@ -17,10 +17,13 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.LoadControl
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.source.LoadEventInfo
+import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceEventListener
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -35,6 +38,7 @@ import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.isVizbeeEnabled
 import tv.vizbee.screendemo.vizbee.VizbeeWrapper.Companion.vizbeeAppLifecycleAdapter
 import tv.vizbee.screendemo.vizbee.video.playback.MyVizbeeMediaSessionCompatPlayerAdapter
 import tv.vizbee.screendemo.vizbee.video.playback.MyVizbeePlayerAdapterHandler
+import java.io.IOException
 
 class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.Listener {
     private val vizbeePlayerAdapterHandler by lazy {
@@ -71,6 +75,8 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
 
         // 2. Initialize MediaSession
         initializeMediaSession()
+
+        Log.d(LOG_TAG, "onCreate invoked")
     }
 
     private fun initializeExoPlayer() {
@@ -151,6 +157,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
+        Log.d(LOG_TAG, "onNewIntent invoked")
     }
 
     override fun onResume() {
@@ -159,6 +166,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
         }
 
         super.onResume()
+        Log.d(LOG_TAG, "onResume invoked")
         handleVideoIntent()
     }
 
@@ -168,6 +176,7 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
                 intent.putExtra("duplicate", true)
                 val video: Video? = extras.getParcelable("video")
                 val position: Long = extras.getLong("position", 0L)
+                Log.d(LOG_TAG, "Video: $video, position: $position")
                 video?.let { prepareVideo(it, position) }
             }
         }
@@ -275,6 +284,31 @@ class ExoPlayerActivity : AppCompatActivity(), MediaSourceEventListener, Player.
         } else if (playbackState == ExoPlayer.STATE_IDLE) {
             Log.d(LOG_TAG, "Player state changed: IDLE")
         }
+    }
+
+    override fun onLoadError(
+        windowIndex: Int,
+        mediaPeriodId: MediaSource.MediaPeriodId?,
+        loadEventInfo: LoadEventInfo,
+        mediaLoadData: MediaLoadData,
+        error: IOException,
+        wasCanceled: Boolean
+    ) {
+        super.onLoadError(
+            windowIndex,
+            mediaPeriodId,
+            loadEventInfo,
+            mediaLoadData,
+            error,
+            wasCanceled
+        )
+
+        Log.e(LOG_TAG, "onLoadError: $error")
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+        super.onPlayerError(error)
+        Log.e(LOG_TAG, "onPlayerError: $error")
     }
 
     companion object {
