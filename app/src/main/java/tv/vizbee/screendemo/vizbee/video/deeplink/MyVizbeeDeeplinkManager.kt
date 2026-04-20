@@ -50,6 +50,7 @@ class MyVizbeeDeeplinkManager(private val appReadyModel: AppReadyModel) {
                 putExtra("guid", videoInfo.guid)
                 putExtra("title", videoInfo.title)
                 putExtra("isLive", videoInfo.isLive)
+                putExtra("deeplink", videoInfo.mobileDeeplink)
                 putExtra("videoUrl", videoInfo.videoURL)
                 putExtra("imageUrl", videoInfo.imageURL)
                 putExtra("streamType", streamType)

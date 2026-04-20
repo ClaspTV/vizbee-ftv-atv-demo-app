@@ -57,6 +57,10 @@ open class Video : Parcelable {
         dest.writeInt(imageRes)
     }
 
+    override fun toString(): String {
+        return "Video(title='$title', guid='$guid', videoURL='$videoURL', imageUrl='$imageUrl', imageRes=$imageRes, isLive=$isLive)"
+    }
+
     companion object {
         @JvmField
         val CREATOR: Parcelable.Creator<Video?> = object : Parcelable.Creator<Video?> {
