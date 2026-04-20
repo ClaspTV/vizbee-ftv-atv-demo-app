@@ -13,7 +13,7 @@ object VideoCatalog {
         Video(
             title = "Elephant's Dream",
             guid = ELEPHANTS_DREAM,
-            videoURL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/hls/ElephantsDream.m3u8",
+            videoURL = "https://d2zihajmogu5jn.cloudfront.net/elephantsdream/hls/ed_hd.m3u8",
             imageUrl = "https://s3.amazonaws.com/vizbee/images/demoapp/elephants_dream.jpg",
             imageRes = R.drawable.elephantdream_720x1024
         ),
@@ -35,7 +35,7 @@ object VideoCatalog {
         Video(
             title = "Sintel",
             guid = SINTEL,
-            videoURL = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+            videoURL = "http://www.peach.themazzone.com/durian/movies/sintel-2048-surround.mp4",
             imageUrl = "https://s3.amazonaws.com/vizbee/images/demoapp/sintel.jpg",
             imageRes = R.drawable.sintel_720x1024,
             isLive = true
